@@ -1,0 +1,9 @@
+
+db_data/*
+!db_data/.gitkeep
+
+minio_data/*
+!minio_data/.gitkeep
+
+
++!.gitkeep
