@@ -44,7 +44,7 @@ if __name__ == "__main__":
             "Unable to download training & test CSV, check your internet connection. Error: %s", e
         )
 
-    # Split the data into training and test sets. (0.75, 0.25) split.
+    # Split the dataset into training and test sets. (0.75, 0.25) split.
     train, test = train_test_split(data)
 
     # The predicted column is "quality" which is a scalar from [3, 9]
@@ -86,6 +86,6 @@ if __name__ == "__main__":
         print("Saved model!", model_info.model_uri)
 
         sklearn_pyfunc = mlflow.pyfunc.load_model(model_uri=model_info.model_uri)
-        # data = np.array([-4, 1, 0, 10, -2, 1]).reshape(-1, 1)
+        # dataset = np.array([-4, 1, 0, 10, -2, 1]).reshape(-1, 1)
         predictions = sklearn_pyfunc.predict(test_x)
         print("Preds: ", predictions[0:10])

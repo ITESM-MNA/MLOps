@@ -7,3 +7,5 @@ DataLoader.extracted_file_name = 'amphibians.csv'
 DataLoader.delimiter = ';'
 DataLoader.encoding = 'utf-8'
 DataLoader.error_bad_lines = True
+
+reports_dir = 'reports'

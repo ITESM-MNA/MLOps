@@ -14,7 +14,7 @@ services:
       - POSTGRES_PASSWORD=${PG_PASSWORD}
       - POSTGRES_DATABASE=${PG_DATABASE}
     volumes:
-      - ./db_data:/var/lib/postgresql/data/
+      - ./db_data:/var/lib/postgresql/dataset/
     healthcheck:
       test: ["CMD", "pg_isready", "-p", "${PG_PORT}", "-U", "${PG_USER}"]
       interval: 5s
@@ -26,7 +26,7 @@ services:
     image: minio/minio
     container_name: mlflow_minio
     volumes:
-      - ./minio_data:/data
+      - ./minio_data:/dataset
     ports:
       - "${MINIO_PORT}:9000"
       - "${MINIO_CONSOLE_PORT}:9001"
@@ -40,7 +40,7 @@ services:
       - MINIO_PORT=${MINIO_PORT}
       - MINIO_STORAGE_USE_HTTPS=${MINIO_STORAGE_USE_HTTPS}
       - MINIO_CONSOLE_ADDRESS=${MINIO_CONSOLE_ADDRESS}
-    command: server /data
+    command: server /dataset
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
