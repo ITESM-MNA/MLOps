@@ -9,3 +9,4 @@ DataLoader.encoding = 'utf-8'
 DataLoader.error_bad_lines = True
 
 reports_dir = 'reports'
+generate_report = False
