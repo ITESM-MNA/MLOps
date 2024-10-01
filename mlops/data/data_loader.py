@@ -6,12 +6,15 @@ from gin import configurable
 import logging
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(levelname)s : %(message)s')
 logger = logging.getLogger(__name__)
+
 
 @configurable
 class DataLoader:
-    def __init__(self, data_url: str = None, local_csv_path: str = None, local_zip_path: str = "data.zip", extract_dir: str = "extracted_data", extracted_file_name: str = None, delimiter: str = ',', encoding: str = 'utf-8', error_bad_lines: bool = True, reload: bool = False):
+    def __init__(self, data_url: str = None, local_csv_path: str = None, local_zip_path: str = "data.zip",
+                 extract_dir: str = "extracted_data", extracted_file_name: str = None, delimiter: str = ',',
+                 encoding: str = 'utf-8', error_bad_lines: bool = True, reload: bool = False):
         """
         Initializes the DataLoader with the given URL and optional parameters.
 
@@ -42,43 +45,44 @@ class DataLoader:
         """
         Downloads and extracts the zip file from the specified URL.
         """
-        try:
-            if not self.reload and self.local_csv_path and os.path.exists(self.local_csv_path):
-                logger.info(f"Reload is set to False. Using existing local CSV at: {self.local_csv_path}")
-                return self.local_csv_path
+        # If reload is False and the CSV file already exists, skip the download process
+        if not self.reload and self.local_csv_path and os.path.exists(self.local_csv_path):
+            logger.info(f"Reload is set to False and local CSV exists. Loading data from: {self.local_csv_path}")
+            return self.local_csv_path
 
+        # Check if the zip file already exists and reload is False, skip download
+        if not self.reload and os.path.exists(self.local_zip_path):
+            logger.info(
+                f"Reload is set to False and zip file already exists. Using existing zip file: {self.local_zip_path}")
+        else:
             logger.info(f"Downloading data from: {self.data_url}")
             response = requests.get(self.data_url)
             response.raise_for_status()  # Raise an error for bad responses
 
+            # Write the content to a local zip file
             with open(self.local_zip_path, 'wb') as f:
                 f.write(response.content)
 
             logger.info(f"Data downloaded and saved to: {self.local_zip_path}")
 
-            # Extract the zip file to the specified directory
-            with zipfile.ZipFile(self.local_zip_path, 'r') as zip_ref:
-                zip_ref.extractall(path=self.extract_dir)
-                extracted_files = zip_ref.namelist()
-                logger.info(f"Files in the archive: {extracted_files}")
+        # Extract the zip file to the specified directory
+        with zipfile.ZipFile(self.local_zip_path, 'r') as zip_ref:
+            zip_ref.extractall(path=self.extract_dir)
+            extracted_files = zip_ref.namelist()
 
-                original_file_path = os.path.join(self.extract_dir, extracted_files[0])
-                renamed_file_path = os.path.join(self.extract_dir, self.extracted_file_name)
+            logger.info(f"Files in the archive: {extracted_files}")
 
-                if os.path.exists(renamed_file_path):
-                    logger.info(f"The file '{self.extracted_file_name}' already exists. Skipping rename.")
-                else:
-                    os.rename(original_file_path, renamed_file_path)
-                    logger.info(f"Renamed '{extracted_files[0]}' to '{self.extracted_file_name}'")
+            original_file_path = os.path.join(self.extract_dir, extracted_files[0])
+            renamed_file_path = os.path.join(self.extract_dir, self.extracted_file_name)
 
-                return renamed_file_path
+            # Check if the renamed file already exists
+            if os.path.exists(renamed_file_path):
+                logger.info(f"The file '{self.extracted_file_name}' already exists. Skipping rename.")
+            else:
+                os.rename(original_file_path, renamed_file_path)
+                logger.info(f"Renamed '{extracted_files[0]}' to '{self.extracted_file_name}'")
 
-        except requests.RequestException as e:
-            logger.error(f"Error downloading the file: {str(e)}")
-            raise
-        except zipfile.BadZipFile:
-            logger.error("Error extracting the zip file. The file may be corrupted.")
-            raise
+            return renamed_file_path
 
     def load(self):
         """
@@ -87,8 +91,18 @@ class DataLoader:
         :return: DataFrame containing the loaded data.
         """
         try:
-            extracted_file = self.download_and_extract() if self.reload or not self.local_csv_path else self.local_csv_path
+            # Use existing local CSV if reload is False and the file exists
+            if not self.reload and self.local_csv_path and os.path.exists(self.local_csv_path):
+                logger.info(f"Loading data from local CSV path: {self.local_csv_path}")
+                return pd.read_csv(
+                    self.local_csv_path,
+                    delimiter=self.delimiter,
+                    encoding=self.encoding,
+                    on_bad_lines='error' if self.error_bad_lines else 'skip'
+                )
 
+            # If reload is True, or the CSV doesn't exist, download and extract
+            extracted_file = self.download_and_extract()
             logger.info(f"Loading data from: {extracted_file}")
             data = pd.read_csv(
                 extracted_file,
@@ -99,10 +113,10 @@ class DataLoader:
             logger.info("Data loaded successfully")
             return data
         except FileNotFoundError:
-            logger.error(f"File not found: {extracted_file}")
+            logger.error(f"File not found: {self.local_csv_path or extracted_file}")
             raise
         except pd.errors.ParserError:
-            logger.error(f"Error parsing the file: {extracted_file}")
+            logger.error(f"Error parsing the file: {self.local_csv_path or extracted_file}")
             raise
         except Exception as e:
             logger.error(f"An error occurred: {str(e)}")
