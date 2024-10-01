@@ -1,5 +1,5 @@
 
-db_data/*
+db_data/.gitkeep
 !db_data/.gitkeep
 
 minio_data/*

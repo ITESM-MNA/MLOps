@@ -65,7 +65,7 @@ services:
 
   tracking_server:
     restart: always
-    build: ./mlflow
+    build: mlflow
     image: mlflow_server
     container_name: mlflow_server
     depends_on:
