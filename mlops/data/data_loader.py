@@ -94,7 +94,7 @@ class DataLoader:
             # Delete the original file if it's not the same as the renamed file
             if original_file_path.exists() and original_file_path != renamed_file_path:
                 original_file_path.unlink()
-                logger.info(f"Deleted the original file '{extracted_file_name}'.")
+                logger.info(f"Deleted the original file '{extracted_files[0]}'.")
 
         return renamed_file_path
 
