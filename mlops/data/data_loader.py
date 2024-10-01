@@ -1,5 +1,5 @@
 import pandas as pd
-import os
+from pathlib import Path
 import zipfile
 import requests
 from gin import configurable
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 class DataLoader:
     def __init__(self, data_url: str = None, local_csv_path: str = None, local_zip_path: str = "data.zip",
                  extract_dir: str = "extracted_data", extracted_file_name: str = None, delimiter: str = ',',
-                 encoding: str = 'utf-8', error_bad_lines: bool = True, reload: bool = False):
+                 encoding: str = 'utf-8', error_bad_lines: bool = True, reload: bool = False, base_dir: str = None):
         """
         Initializes the DataLoader with the given URL and optional parameters.
 
@@ -27,11 +27,17 @@ class DataLoader:
         :param encoding: Encoding format for reading the CSV file (default is 'utf-8').
         :param error_bad_lines: Whether to raise errors for bad lines (default is True).
         :param reload: Whether to download the data from URL if it already exists on disk (default is False).
+        :param base_dir: Base directory of the project to make paths relative. If not provided, automatically resolved.
         """
+        # Automatically determine base_dir if not provided
+        self.base_dir = Path(base_dir).resolve() if base_dir else Path(__file__).parent.parent.resolve()
+        logger.info(f"Base directory set to: {self.base_dir}")
+
+        # Resolve paths relative to base_dir
         self.data_url = data_url
-        self.local_csv_path = local_csv_path
-        self.local_zip_path = local_zip_path
-        self.extract_dir = extract_dir
+        self.local_csv_path = (self.base_dir / local_csv_path).resolve() if local_csv_path else None
+        self.local_zip_path = (self.base_dir / local_zip_path).resolve()
+        self.extract_dir = (self.base_dir / extract_dir).resolve()
         self.extracted_file_name = extracted_file_name
         self.delimiter = delimiter
         self.encoding = encoding
@@ -39,19 +45,22 @@ class DataLoader:
         self.reload = reload
 
         # Ensure the extract directory exists
-        os.makedirs(self.extract_dir, exist_ok=True)
+        self.extract_dir.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Resolved local_csv_path to: {self.local_csv_path}")
+        logger.info(f"Resolved local_zip_path to: {self.local_zip_path}")
+        logger.info(f"Resolved extract_dir to: {self.extract_dir}")
 
     def download_and_extract(self):
         """
         Downloads and extracts the zip file from the specified URL.
         """
         # If reload is False and the CSV file already exists, skip the download process
-        if not self.reload and self.local_csv_path and os.path.exists(self.local_csv_path):
+        if not self.reload and self.local_csv_path and self.local_csv_path.exists():
             logger.info(f"Reload is set to False and local CSV exists. Loading data from: {self.local_csv_path}")
             return self.local_csv_path
 
         # Check if the zip file already exists and reload is False, skip download
-        if not self.reload and os.path.exists(self.local_zip_path):
+        if not self.reload and self.local_zip_path.exists():
             logger.info(
                 f"Reload is set to False and zip file already exists. Using existing zip file: {self.local_zip_path}")
         else:
@@ -72,17 +81,22 @@ class DataLoader:
 
             logger.info(f"Files in the archive: {extracted_files}")
 
-            original_file_path = os.path.join(self.extract_dir, extracted_files[0])
-            renamed_file_path = os.path.join(self.extract_dir, self.extracted_file_name)
+            original_file_path = self.extract_dir / extracted_files[0]
+            renamed_file_path = self.extract_dir / self.extracted_file_name
 
             # Check if the renamed file already exists
-            if os.path.exists(renamed_file_path):
+            if renamed_file_path.exists():
                 logger.info(f"The file '{self.extracted_file_name}' already exists. Skipping rename.")
             else:
-                os.rename(original_file_path, renamed_file_path)
+                original_file_path.rename(renamed_file_path)
                 logger.info(f"Renamed '{extracted_files[0]}' to '{self.extracted_file_name}'")
 
-            return renamed_file_path
+            # Delete the original file if it's not the same as the renamed file
+            if original_file_path.exists() and original_file_path != renamed_file_path:
+                original_file_path.unlink()
+                logger.info(f"Deleted the original file '{extracted_file_name}'.")
+
+        return renamed_file_path
 
     def load(self):
         """
@@ -92,7 +106,7 @@ class DataLoader:
         """
         try:
             # Use existing local CSV if reload is False and the file exists
-            if not self.reload and self.local_csv_path and os.path.exists(self.local_csv_path):
+            if not self.reload and self.local_csv_path and self.local_csv_path.exists():
                 logger.info(f"Loading data from local CSV path: {self.local_csv_path}")
                 return pd.read_csv(
                     self.local_csv_path,

@@ -1,8 +1,9 @@
-DataLoader.reload = False  # True to download from the URL again
+DataLoader.reload = False
+DataLoader.base_dir = 'C:/Users/arman/PycharmProjects/MLOps'
 DataLoader.data_url = 'https://archive.ics.uci.edu/static/public/528/amphibians.zip'
-DataLoader.local_zip_path = '../data/amphibians.zip'
-DataLoader.extract_dir = '../data/extracted'
-DataLoader.extracted_file_name = 'amphibians.csv'  # Desired name for the extracted file
+DataLoader.local_zip_path = 'data/amphibians.zip'
+DataLoader.extract_dir = 'data/extracted'
+DataLoader.extracted_file_name = 'amphibians.csv'
 DataLoader.delimiter = ';'
 DataLoader.encoding = 'utf-8'
 DataLoader.error_bad_lines = True

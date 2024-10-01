@@ -17,8 +17,6 @@ def run():
 
     # Display the first few rows as a confirmation
     logging.info("Data loaded successfully. Here are the first few rows:")
-    display(df.head())  # Displaying the DataFrame
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
