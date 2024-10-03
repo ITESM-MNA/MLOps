@@ -54,7 +54,10 @@ def run():
     predictor.load_model()
 
     # Evaluate the model on the test set
-    precision, recall, f1, accuracy, hamming = model_trainer.evaluate_model_performance(trained_model)
+    mean_metrics, class_metrics = model_trainer.evaluate_model_performance(trained_model)
+
+    # Store the best thresholds for predictions
+    best_thresholds = mean_metrics['best_thresholds']  # Assuming you have stored them during evaluation
 
     # Pick more samples from the dataset and run predictions
     for sample_idx in [0, 1, 5, 10]:  # You can adjust these indices as needed
@@ -69,20 +72,21 @@ def run():
             [actual_label.tolist()])  # Ensure it's a list of lists for decoding
 
         # Make the prediction
-        prediction = predictor.predict(random_sample)
+        raw_prediction = predictor.predict(random_sample)
 
-        logger.info(f"Raw Prediction result: {prediction}")
+        # Apply the best thresholds to get final class predictions
+        thresholded_prediction = (raw_prediction >= best_thresholds).astype(int)
 
-        # Decode the prediction to get class names
-        decoded_prediction = predictor.decode_prediction(prediction)
+        # Decode the thresholded prediction
+        decoded_prediction = predictor.decode_prediction(thresholded_prediction)
 
+        logger.info(f"Thresholded Prediction result: {thresholded_prediction}")
+        logger.info(f"Raw Prediction result: {raw_prediction}")
         logger.info(f"Predicted classes: {decoded_prediction}")
         logger.info(f"Actual classes: {decoded_actual_label}")
 
-        # Handle the case where both predicted and actual labels are empty
-        if not decoded_prediction and not decoded_actual_label:
-            logger.info("Both predicted and actual classes are empty — they match!")
-        elif decoded_prediction == decoded_actual_label:
+        # Check if the prediction matches the actual label
+        if (thresholded_prediction == actual_label).all():
             logger.info("Prediction matches the actual label!")
         else:
             logger.info("Prediction does NOT match the actual label.")
