@@ -73,8 +73,8 @@ def save_model(model, model_name, models_dir):
 
     return model_path
 
-
-def train_and_save_best_model(X_pca, y):
+@gin.configurable
+def train_and_save_best_model(X_pca, y, models_dir):
     try:
         # Train and test the model
         model_trainer = TrainModel(X_pca, y)
@@ -89,11 +89,9 @@ def train_and_save_best_model(X_pca, y):
 
         # Train the best model and save it
         trained_model = model_trainer.train_model(best_model_name)
-        model_path = save_model(trained_model, best_model_name)
+        save_model(trained_model, best_model_name)
 
         # Save best thresholds
-        base_dir = gin.query_parameter('base_dir')
-        models_dir = os.path.join(base_dir, 'models')
         with open(os.path.join(models_dir, f'{best_model_name.lower()}_thresholds.pkl'), 'wb') as f:
             pickle.dump(model_trainer.best_thresholds, f)
         logger.info(f"Best thresholds saved at {os.path.join(models_dir, f'{best_model_name.lower()}_thresholds.pkl')}")
