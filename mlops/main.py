@@ -3,7 +3,8 @@ import gin
 import logging
 from ydata_profiling import ProfileReport
 from mlops.dataset.data_loader import DataLoader
-from mlops.feature_engineering.data_preprocessing import DataPreprocessing  # Updated import
+from mlops.feature_engineering.data_preprocessing import DataPreprocessing
+from mlops.modeling.train_model import TrainModel
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, handlers=[logging.StreamHandler()])
@@ -38,6 +39,11 @@ def run():
     # Preprocess the data
     data_preprocessor = DataPreprocessing(df)
     X_pca, y = data_preprocessor.preprocess()
+
+    # Train and test the model
+    model_trainer = TrainModel(X_pca, y, cv_enabled=True, cv_folds=5)
+    results = model_trainer.run_all_models()
+
 
     # Check if report generation is enabled from gin config
     if gin.query_parameter('%generate_report'):
