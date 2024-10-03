@@ -1,8 +1,7 @@
 import argparse
 import logging
 import pickle
-import random
-
+import os
 import gin
 import numpy as np
 from sklearnex import patch_sklearn
@@ -14,9 +13,29 @@ from mlops.modeling.train_model import TrainModel
 
 patch_sklearn()
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(levelname)s | %(message)s')
-logger = logging.getLogger(__name__)
+
+# Function to configure logging to both console and file
+@gin.configurable
+def configure_logging(reports_dir):
+
+    # Ensure the reports directory exists
+    os.makedirs(reports_dir, exist_ok=True)
+
+    # Path to the log file inside reports_dir
+    log_file_path = os.path.join(reports_dir, 'pipeline.log')
+
+    # Set up logging with both console and file handlers
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s | %(levelname)s | %(message)s',
+        handlers=[
+            logging.StreamHandler(),  # Logs to console
+            logging.FileHandler(log_file_path, mode='w')  # Logs to file
+        ]
+    )
+    logger = logging.getLogger(__name__)
+    logger.info(f"Logging configured. Logs will be saved to {log_file_path}")
+    return logger
 
 
 def load_and_preprocess_data():
@@ -40,6 +59,21 @@ def load_and_preprocess_data():
         raise
 
 
+@gin.configurable
+def save_model(model, model_name, models_dir):
+    # Ensure the directory exists
+    os.makedirs(models_dir, exist_ok=True)
+
+    model_path = os.path.join(models_dir, f'{model_name.lower()}_model.pkl')
+
+    # Save the model
+    with open(model_path, 'wb') as f:
+        pickle.dump(model, f)
+    logger.info(f"Trained model saved at {model_path}")
+
+    return model_path
+
+
 def train_and_save_best_model(X_pca, y):
     try:
         # Train and test the model
@@ -53,19 +87,16 @@ def train_and_save_best_model(X_pca, y):
         best_model_name = max(results, key=lambda x: results[x]['f1_score'])
         logger.info(f"Best model based on F1 Score: {best_model_name}")
 
-        # Train the best model
+        # Train the best model and save it
         trained_model = model_trainer.train_model(best_model_name)
-
-        # Save the trained model
-        model_path = f'{best_model_name.lower()}_model.pkl'
-        with open(model_path, 'wb') as f:
-            pickle.dump(trained_model, f)
-        logger.info(f"Trained model saved at {model_path}")
+        model_path = save_model(trained_model, best_model_name)
 
         # Save best thresholds
-        with open(f'{best_model_name.lower()}_thresholds.pkl', 'wb') as f:
+        base_dir = gin.query_parameter('base_dir')
+        models_dir = os.path.join(base_dir, 'models')
+        with open(os.path.join(models_dir, f'{best_model_name.lower()}_thresholds.pkl'), 'wb') as f:
             pickle.dump(model_trainer.best_thresholds, f)
-        logger.info(f"Best thresholds saved at {best_model_name.lower()}_thresholds.pkl")
+        logger.info(f"Best thresholds saved at {os.path.join(models_dir, f'{best_model_name.lower()}_thresholds.pkl')}")
 
         return best_model_name, model_trainer
     except Exception as e:
@@ -82,8 +113,11 @@ def run_predictions(predictor, model_trainer, sample_indices):
             logger.info(f"Random sample for prediction: {random_sample}")
             logger.info(f"Actual label for the sample: {actual_label}")
 
+            # Convert actual_label to a numpy array before decoding
+            actual_label_np = np.array([actual_label])
+
             # Decode the actual label
-            decoded_actual_label = predictor.decode_prediction([actual_label.tolist()])
+            decoded_actual_label = predictor.decode_prediction(actual_label_np)
 
             # Make the prediction
             raw_prediction = predictor.predict(random_sample)
@@ -144,9 +178,10 @@ if __name__ == '__main__':
     # Load Gin configuration
     try:
         gin.parse_config_file(args.config)
+        logger = configure_logging()  # Move logging configuration after gin config is loaded
         logger.info("Gin configuration loaded successfully.")
     except Exception as e:
-        logger.error(f"Failed to load Gin configuration: {e}")
+        print(f"Failed to load Gin configuration: {e}")
         raise
 
     # Execute the main run function

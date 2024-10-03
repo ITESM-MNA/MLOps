@@ -1,4 +1,9 @@
-DataLoader.reload = False
+# Logs directory
+configure_logging.reports_dir = "C:/Users/arman/PycharmProjects/MLOps/reports"
+
+# Models directory
+save_model.models_dir = "C:/Users/arman/PycharmProjects/MLOps/models"
+
 DataLoader.base_dir = 'C:/Users/arman/PycharmProjects/MLOps'
 DataLoader.data_url = 'https://archive.ics.uci.edu/static/public/528/amphibians.zip'
 DataLoader.local_zip_path = 'data/amphibians.zip'
@@ -7,6 +12,3 @@ DataLoader.extracted_file_name = 'amphibians.csv'
 DataLoader.delimiter = ';'
 DataLoader.encoding = 'utf-8'
 DataLoader.error_bad_lines = True
-
-reports_dir = 'reports'
-generate_report = False
