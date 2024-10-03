@@ -1,43 +1,89 @@
 import pickle
 import numpy as np
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
 import logging
 
 logger = logging.getLogger(__name__)
 
 
 class Predictor:
-    def __init__(self, model_path):
+    def __init__(self, model_path, preprocessor_path=None, pca_path=None):
         self.model_path = model_path
+        self.preprocessor_path = preprocessor_path
+        self.pca_path = pca_path
         self.model = None
-        # Define the class labels
+        self.preprocessor = None
+        self.pca = None
         self.class_labels = ['Green frogs', 'Brown frogs', 'Common toad', 'Fire-bellied toad', 'Tree frog',
                              'Common newt', 'Great crested newt']
 
     def load_model(self):
-        """
-        Load only the model from the specified file path.
-        """
         logger.info(f"Loading model from: {self.model_path}")
         try:
             with open(self.model_path, 'rb') as f:
-                self.model = pickle.load(f)  # Only load the model
+                self.model = pickle.load(f)
             logger.info("Model loaded successfully.")
         except Exception as e:
             logger.error(f"Error loading model: {e}")
-            raise  # Re-raise the exception to stop execution
+            raise
+
+    def load_preprocessor(self):
+        if self.preprocessor_path:
+            logger.info(f"Loading preprocessor from: {self.preprocessor_path}")
+            try:
+                with open(self.preprocessor_path, 'rb') as f:
+                    self.preprocessor = pickle.load(f)
+                logger.info("Preprocessor loaded successfully.")
+            except Exception as e:
+                logger.error(f"Error loading preprocessor: {e}")
+                raise
+        else:
+            logger.warning("No preprocessor path provided. Skipping preprocessor loading.")
+
+    def load_pca(self):
+        if self.pca_path:
+            logger.info(f"Loading PCA from: {self.pca_path}")
+            try:
+                with open(self.pca_path, 'rb') as f:
+                    self.pca = pickle.load(f)
+                logger.info("PCA loaded successfully.")
+            except Exception as e:
+                logger.error(f"Error loading PCA: {e}")
+                raise
+        else:
+            logger.warning("No PCA path provided. Skipping PCA loading.")
+
+    def load_all(self):
+        self.load_model()
+        self.load_preprocessor()
+        self.load_pca()
 
     def preprocess_input(self, input_data):
-        """
-        Preprocess the input data.
-        In this case, it's already PCA transformed and scaled.
-        """
         logger.info("Starting input data preprocessing...")
+
+        if isinstance(input_data, pd.DataFrame):
+            # If input is a DataFrame, use column names
+            input_data = input_data.to_numpy()
+        elif not isinstance(input_data, np.ndarray):
+            raise ValueError("Input data must be a pandas DataFrame or a numpy array")
+
+        if self.preprocessor:
+            input_data = self.preprocessor.transform(input_data)
+            logger.info("Applied preprocessor transformation.")
+        else:
+            logger.warning("No preprocessor available. Skipping preprocessing step.")
+
+        if self.pca:
+            input_data = self.pca.transform(input_data)
+            logger.info("Applied PCA transformation.")
+        else:
+            logger.warning("No PCA model available. Skipping PCA transformation.")
+
         return input_data
 
     def predict(self, input_data, best_thresholds=None):
-        """
-        Predict using the loaded model and apply the best thresholds for each label.
-        """
         if self.model is None:
             logger.error("Model is not loaded. Please load the model before prediction.")
             return None
@@ -45,51 +91,38 @@ class Predictor:
         logger.info("Starting prediction process...")
         preprocessed_data = self.preprocess_input(input_data)
 
-        # Debugging: Check preprocessed input data
-        logger.info(f"Preprocessed Input Data: {preprocessed_data}")
+        logger.info(f"Preprocessed Input Data shape: {preprocessed_data.shape}")
 
-        # Get probabilities for each output (multi-output classification)
         probabilities = self.model.predict_proba(preprocessed_data)
 
-        # Initialize a list to store predictions
         predictions = []
-
-        # Apply thresholds (either the best thresholds or a default threshold of 0.5)
         for i, prob in enumerate(probabilities):
-            # prob is a list of arrays, one array for each class; extract the second element (class 1)
-            prob_class_1 = np.array([p[1] for p in prob])
-
-            # Use the best threshold if provided, otherwise default to 0.5
+            prob_class_1 = prob[:, 1] if prob.ndim == 2 else prob
             threshold = best_thresholds[i] if best_thresholds is not None else 0.5
             pred = (prob_class_1 >= threshold).astype(int)
             predictions.append(pred)
 
-        # Stack predictions into a 2D array
         predictions = np.column_stack(predictions)
 
-        # Debugging: Log final prediction result
-        logger.info(f"Thresholded Prediction result: {predictions}")
+        logger.info(f"Prediction shape: {predictions.shape}")
+        logger.info(f"Sample of predictions: {predictions[:5]}")
 
         return predictions
 
     def decode_prediction(self, prediction):
-        """
-        Map prediction output to class labels.
-        Assuming prediction is a binary matrix (e.g., 0 and 1 values), map it to human-readable labels.
-        """
         decoded_prediction = []
 
-        # Check if prediction length matches number of classes
-        for pred in prediction:
-            if len(pred) != len(self.class_labels):
-                logger.error(
-                    f"Prediction length {len(pred)} does not match the number of class labels {len(self.class_labels)}")
-                return None  # Exit if there's a mismatch
+        if prediction.shape[1] != len(self.class_labels):
+            logger.error(
+                f"Prediction shape {prediction.shape} does not match the number of class labels {len(self.class_labels)}")
+            return None
 
-            # Decode only when prediction length matches class labels
+        for pred in prediction:
             decoded_classes = [self.class_labels[i] for i, val in enumerate(pred) if val == 1]
             decoded_prediction.append(decoded_classes)
 
         return decoded_prediction
 
-
+    def predict_and_decode(self, input_data, best_thresholds=None):
+        predictions = self.predict(input_data, best_thresholds)
+        return self.decode_prediction(predictions)
