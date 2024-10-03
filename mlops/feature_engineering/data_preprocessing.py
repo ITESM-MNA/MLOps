@@ -1,10 +1,12 @@
 import pandas as pd
+import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 import logging
 
 # Initialize logging for the class
 logger = logging.getLogger(__name__)
+
 
 class DataPreprocessing:
     """
@@ -74,17 +76,21 @@ class DataPreprocessing:
         return normalised_df
 
     @staticmethod
-    def apply_pca(X):
+    def apply_pca(X, variance_retained=0.95):
         """
-        Apply PCA to reduce the dimensionality of the features.
-        :param X: DataFrame of features.
-        """
-        n_components = min(10, X.shape[0], X.shape[1])  # Min of 10, number of samples, or number of features
+        Apply PCA to reduce the dimensionality of the features while retaining
+        a specified amount of variance.
 
-        logger.info(f"Applying PCA with {n_components} components.")
-        pca = PCA(n_components=n_components)
+        :param X: DataFrame of features.
+        :param variance_retained: float, The percentage of variance to retain (e.g., 0.95 for 95%).
+        """
+        logger.info(f"Applying PCA to retain {variance_retained * 100}% of the variance.")
+
+        pca = PCA(n_components=variance_retained)
         principal_components = pca.fit_transform(X)
-        logger.info("PCA application completed.")
+
+        explained_variance = np.sum(pca.explained_variance_ratio_)
+        logger.info(f"Explained variance after PCA: {explained_variance:.4f}")
 
         return principal_components
 
