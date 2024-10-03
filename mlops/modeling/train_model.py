@@ -5,17 +5,20 @@ import pandas as pd
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier, AdaBoostClassifier, GradientBoostingClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.metrics import (precision_score, recall_score,
                              f1_score, accuracy_score, hamming_loss,
                              precision_recall_curve, make_scorer)
+from sklearn.preprocessing import StandardScaler
+
 
 # Configure logging
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
+
 
 class TrainModel:
     def __init__(self, X, y, test_size=0.3, random_state=42):
@@ -25,12 +28,17 @@ class TrainModel:
         self.X_test = None
         self.y_train = None
         self.y_test = None
+        self.y_train_df = None
+        self.y_test_df = None
         self.test_size = test_size
         self.random_state = random_state
         self.best_thresholds = None
         self.models = {
             "Logistic Regression": MultiOutputClassifier(LogisticRegression()),
             "Random Forest": MultiOutputClassifier(RandomForestClassifier()),
+            "Extra Trees": MultiOutputClassifier(ExtraTreesClassifier()),
+            "AdaBoost": MultiOutputClassifier(AdaBoostClassifier()),
+            "Gradient Boosting": MultiOutputClassifier(GradientBoostingClassifier()),
             "Decision Tree": MultiOutputClassifier(DecisionTreeClassifier()),
             "SVM": MultiOutputClassifier(SVC(probability=True))
         }
@@ -39,7 +47,8 @@ class TrainModel:
             'Logistic Regression': {
                 'estimator__C': [0.1, 1, 10],
                 'estimator__solver': ['liblinear', 'saga'],
-                'estimator__class_weight': ['balanced']
+                'estimator__class_weight': ['balanced'],
+                'estimator__max_iter': [100, 200, 500, 1000]
             },
             'Random Forest': {
                 'estimator__n_estimators': [50, 100, 200],
@@ -47,6 +56,25 @@ class TrainModel:
                 'estimator__min_samples_split': [2, 5],
                 'estimator__min_samples_leaf': [1, 2],
                 'estimator__class_weight': ['balanced', 'balanced_subsample']
+            },
+            'Extra Trees': {
+                'estimator__n_estimators': [50, 100, 200],
+                'estimator__max_depth': [5, 10, None],
+                'estimator__min_samples_split': [2, 5],
+                'estimator__min_samples_leaf': [1, 2],
+                'estimator__class_weight': ['balanced', 'balanced_subsample']
+            },
+            'AdaBoost': {
+                'estimator__n_estimators': [50, 100, 200],
+                'estimator__learning_rate': [0.01, 0.1, 1],
+                'estimator__algorithm': ['SAMME', 'SAMME.R']
+            },
+            'Gradient Boosting': {
+                'estimator__n_estimators': [50, 100, 200],
+                'estimator__learning_rate': [0.01, 0.1, 1],
+                'estimator__max_depth': [3, 5, 7],
+                'estimator__min_samples_split': [2, 5],
+                'estimator__min_samples_leaf': [1, 2]
             },
             'Decision Tree': {
                 'estimator__max_depth': [5, 10, None],
@@ -64,13 +92,22 @@ class TrainModel:
 
     def train_test_split(self):
         """
-        Split the data into training and testing sets.
+        Split the data into training and testing sets and scale features.
         """
         # Perform train-test split
-        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
+        self.X_train, self.X_test, self.y_train_df, self.y_test_df = train_test_split(
             self.X, self.y, test_size=self.test_size, random_state=self.random_state
         )
         logger.info(f"Splitting data with test size = {self.test_size} and random state = {self.random_state}.")
+
+        # Feature scaling
+        scaler = StandardScaler()
+        self.X_train = scaler.fit_transform(self.X_train)
+        self.X_test = scaler.transform(self.X_test)
+
+        # Ensure y_train and y_test are numpy arrays of integers
+        self.y_train = self.y_train_df.astype(int).to_numpy()
+        self.y_test = self.y_test_df.astype(int).to_numpy()
 
     def tune_model(self, model_name, cv_folds=5):
         """
@@ -84,10 +121,9 @@ class TrainModel:
         param_grid = self.hyperparameters[model_name]
         logger.info(f"Tuning {model_name} with GridSearchCV...")
 
-        # Define scoring metrics
+        # Define scoring metrics with zero_division parameter
         scoring = {
-            'f1_macro': make_scorer(f1_score, average='macro'),
-            'hamming_loss': make_scorer(hamming_loss)
+            'f1_samples': make_scorer(f1_score, average='samples', zero_division=0)
         }
 
         grid_search = GridSearchCV(
@@ -95,18 +131,14 @@ class TrainModel:
             param_grid,
             cv=cv_folds,
             scoring=scoring,
-            refit='f1_macro',  # Refitting based on the F1 macro score
-            return_train_score=True  # Optionally return training scores for analysis
+            refit='f1_samples',
+            return_train_score=True
         )
 
         grid_search.fit(self.X_train, self.y_train)
 
         logger.info(f"Best parameters for {model_name}: {grid_search.best_params_}")
-        logger.info(f"Best F1 score (macro): {grid_search.best_score_}")
-        if 'hamming_loss' in grid_search.cv_results_:
-            logger.info(
-                f"Best Hamming Loss: {grid_search.cv_results_['mean_test_hamming_loss'][grid_search.best_index_]}"
-            )
+        logger.info(f"Best F1 score (samples): {grid_search.best_score_}")
 
         return grid_search.best_estimator_
 
@@ -128,35 +160,50 @@ class TrainModel:
     def find_best_threshold(self, model, X_val, y_val):
         """
         Find the best threshold that maximizes the F1 score on the validation set.
-        Also calibrate the probabilities using Platt Scaling.
+        Uses calibrated probabilities and vectorized operations for improved performance.
         """
         logger.info("Finding the best threshold for each label using the validation set.")
 
-        if isinstance(y_val, pd.DataFrame):
-            y_val = y_val.to_numpy()
-
         y_val = y_val.astype(int)
+        n_labels = y_val.shape[1]
 
-        y_probs = [model.estimators_[i].predict_proba(X_val) for i in range(y_val.shape[1])]
-        best_thresholds = []
+        # Calibrate probabilities for all labels at once
+        calibrated_models = [
+            CalibratedClassifierCV(model.estimators_[i], method='sigmoid', cv='prefit')
+            for i in range(n_labels)
+        ]
+        for i, cal_model in enumerate(calibrated_models):
+            cal_model.fit(X_val, y_val[:, i])
 
-        for i in range(y_val.shape[1]):
-            probas = y_probs[i][:, 1]
+        # Get calibrated probabilities for all labels
+        calibrated_probas = np.array([
+            cal_model.predict_proba(X_val)[:, 1] for cal_model in calibrated_models
+        ]).T
 
-            # Apply Platt Scaling for probability calibration
-            calibrated_model = CalibratedClassifierCV(model.estimators_[i], method='sigmoid', cv='prefit')
-            calibrated_model.fit(X_val, y_val[:, i])
-            calibrated_probas = calibrated_model.predict_proba(X_val)[:, 1]
+        # Initialize arrays to store metrics
+        thresholds = np.linspace(0, 1, 100)
+        f1_scores = np.zeros((n_labels, len(thresholds)))
 
-            precisions, recalls, thresholds = precision_recall_curve(y_val[:, i], calibrated_probas, pos_label=1)
+        # Vectorized computation of precision, recall, and F1 score
+        for i, threshold in enumerate(thresholds):
+            predictions = (calibrated_probas >= threshold).astype(int)
+            true_positives = (predictions * y_val).sum(axis=0)
+            predicted_positives = predictions.sum(axis=0)
+            actual_positives = y_val.sum(axis=0)
 
-            f1_scores = 2 * (precisions * recalls) / (precisions + recalls + 1e-10)
+            precision = np.divide(true_positives, predicted_positives,
+                                  out=np.zeros_like(true_positives, dtype=float),
+                                  where=predicted_positives != 0)
+            recall = np.divide(true_positives, actual_positives,
+                               out=np.zeros_like(true_positives, dtype=float),
+                               where=actual_positives != 0)
 
-            best_idx = np.argmax(f1_scores)
-            if best_idx < len(thresholds):
-                best_thresholds.append(thresholds[best_idx])
-            else:
-                best_thresholds.append(0.5)
+            f1_scores[:, i] = np.divide(2 * precision * recall, precision + recall,
+                                        out=np.zeros_like(precision, dtype=float),
+                                        where=(precision + recall) != 0)
+
+        # Find the best threshold for each label
+        best_thresholds = thresholds[np.argmax(f1_scores, axis=1)]
 
         logger.info(f"Best thresholds for each label: {best_thresholds}")
         return best_thresholds
@@ -175,15 +222,6 @@ class TrainModel:
         logger.info(f"Evaluating {model.__class__.__name__} model...")
 
         y_pred = self.predict_with_threshold(model, self.X_test)
-
-        if isinstance(self.y_test, pd.DataFrame):
-            self.y_test = self.y_test.to_numpy()
-
-        if isinstance(y_pred, pd.DataFrame):
-            y_pred = y_pred.to_numpy()
-
-        # Convert y_test to integers (since y_pred is numeric)
-        self.y_test = self.y_test.astype(int)
 
         # Ensure y_pred and y_test have the same shape
         if y_pred.shape != self.y_test.shape:
@@ -260,8 +298,14 @@ class TrainModel:
 
         # Iterate over each label and apply the corresponding threshold
         for i, probs in enumerate(probas):
-            # probs is (n_samples, 2) for each label, we take probs[:, 1] to get the probabilities for class 1
-            predictions[:, i] = (probs[:, 1] >= thresholds[i]).astype(int)
+            # probs is (n_samples, n_classes) for each label
+            if probs.shape[1] == 2:
+                # Binary classification, take probability of class 1
+                class1_probs = probs[:, 1]
+            else:
+                # Multiclass classification, adjust as needed
+                class1_probs = probs.max(axis=1)
+            predictions[:, i] = (class1_probs >= thresholds[i]).astype(int)
 
         return predictions
 
@@ -276,8 +320,8 @@ class TrainModel:
             logger.info(f"Training and evaluating model: {model_name}")
             trained_model = self.tune_model(model_name)
             if trained_model:
-                mean_metrics, class_metrics = self.evaluate_model_performance(trained_model)  # Capture both returns
-                results[model_name] = mean_metrics  # Store only mean metrics
+                mean_metrics, class_metrics = self.evaluate_model_performance(trained_model)
+                results[model_name] = mean_metrics
 
         logger.info("\nAll model results:\n")
         for model_name, metrics in results.items():

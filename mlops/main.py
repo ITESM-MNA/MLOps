@@ -9,6 +9,9 @@ from mlops.feature_engineering.data_preprocessing import DataPreprocessing
 from mlops.modeling.train_model import TrainModel
 from mlops.modeling.prediction import Predictor
 
+from sklearnex import patch_sklearn
+patch_sklearn()
+
 # Configure logging
 logging.basicConfig(level=logging.INFO, handlers=[logging.StreamHandler()])
 logger = logging.getLogger(__name__)
