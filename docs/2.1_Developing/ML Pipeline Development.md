@@ -212,5 +212,27 @@ If the pipeline does not run as expected, consider that some of the next scenari
 - The cookiecutter template you choose at the end, may be different to the one I choose for this activity, that make the paths different.
 
 
+# Integrating DVC with MLflow
+
+On the same folder, you will find new versions of the refactored files we saw in the last class; those files still focused on the refactoring of the Wine_Refactored_V1.ipynb with the usage of functions, but are adjusted to integrate MLflow with Dvc, so you can track your experiments on the MLflow UI, everytime yoyuurun **dvc_repro**.
+
+As well, you can find a new version of the params.yaml (params_v2.yaml) and the dvc.yaml (dvc_v2.yaml) that includes the adjustments as well for running not only the Logistic Regression, but a Random Forest model as well, so in the first run of the pipeline, both models will run, and in the next iterations, only if you change some of the arguments of one model in the parameters_v2.yaml file, that will be the only model that will run.
+
+Consider that if you want to run this new versions, those may be running on a different folder, with a similar structure to the one you have already defined, so Dvc won't get confused between params.yaml and params_v2.yaml (same for the dvc.yaml files).
+
+Remember that *mlflow* must be installed and once you have installed, it should be initialized from a terminal.
+
+```bash
+pip install mlflow
+```
+
+Then, for initializing *mlflow*
+
+```bash
+mlflow ui
+```
+
+After this, you now would be able to run mlflow on the IP **http://127.0.0.1:5000**, then, you are ready to run your pipeline with **dvc repro**.
+
 --------
 
