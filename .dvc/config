@@ -1,4 +1,4 @@
 [core]
     remote = storage
 ['remote "storage"']
-    url = gdrive://1hkG2EWiN6ic7N2QzMsipnKQD5LeBvnV5
+    url = gs://mlops-dvc-2dc52.appspot.com/dataset
