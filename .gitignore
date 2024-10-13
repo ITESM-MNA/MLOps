@@ -2,3 +2,5 @@ env
 *.zip
 *.csv
 *.json
+.idea
+*/__pycache__
