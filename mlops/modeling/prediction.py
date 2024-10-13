@@ -126,3 +126,41 @@ class Predictor:
     def predict_and_decode(self, input_data, best_thresholds=None):
         predictions = self.predict(input_data, best_thresholds)
         return self.decode_prediction(predictions)
+
+    def run_predictions(predictor, model_trainer, sample_indices):
+        try:
+            for sample_idx in sample_indices:
+                random_sample = model_trainer.X_test[sample_idx].reshape(1, -1)
+                actual_label = model_trainer.y_test[sample_idx]
+
+                logger.info(f"Random sample for prediction: {random_sample}")
+                logger.info(f"Actual label for the sample: {actual_label}")
+
+                # Convert actual_label to a numpy array before decoding
+                actual_label_np = np.array([actual_label])
+
+                # Decode the actual label
+                decoded_actual_label = predictor.decode_prediction(actual_label_np)
+
+                # Make the prediction
+                raw_prediction = predictor.predict(random_sample)
+
+                # Apply the best thresholds to get final class predictions
+                thresholded_prediction = (raw_prediction >= model_trainer.best_thresholds).astype(int)
+
+                # Decode the thresholded prediction
+                decoded_prediction = predictor.decode_prediction(thresholded_prediction)
+
+                logger.info(f"Thresholded Prediction result: {thresholded_prediction}")
+                logger.info(f"Raw Prediction result: {raw_prediction}")
+                logger.info(f"Predicted classes: {decoded_prediction}")
+                logger.info(f"Actual classes: {decoded_actual_label}")
+
+                # Check if the prediction matches the actual label
+                if (thresholded_prediction == actual_label).all():
+                    logger.info("Prediction matches the actual label!")
+                else:
+                    logger.info("Prediction does NOT match the actual label.")
+        except Exception as e:
+            logger.error(f"Error during prediction: {e}")
+            raise

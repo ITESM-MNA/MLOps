@@ -1,5 +1,8 @@
 import logging
 import numpy as np
+import os
+import pickle
+import gin
 
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.calibration import CalibratedClassifierCV
@@ -329,3 +332,44 @@ class TrainModel:
                         f"Hamming Loss: {metrics['hamming_loss']:.4f}")
 
         return results
+
+    @gin.configurable
+    def save_model(self, model, model_name, models_dir):
+        # Ensure the directory exists
+        os.makedirs(models_dir, exist_ok=True)
+
+        model_path = os.path.join(models_dir, f'{model_name.lower()}_model.pkl')
+
+        # Save the model
+        with open(model_path, 'wb') as f:
+            pickle.dump(model, f)
+        logger.info(f"Trained model saved at {model_path}")
+
+        return model_path
+
+    @gin.configurable
+    def train_and_save_best_model(self, models_dir):
+        try:
+            # Train and test the model
+            self.train_test_split()
+
+            # Train all models and get the results
+            results = self.run_all_models()
+
+            # Find the model with the best F1 score
+            best_model_name = max(results, key=lambda x: results[x]['f1_score'])
+            logger.info(f"Best model based on F1 Score: {best_model_name}")
+
+            # Train the best model and save it
+            trained_model = self.train_model(best_model_name)
+            self.save_model(trained_model, best_model_name)
+
+            # Save best thresholds
+            with open(os.path.join(models_dir, f'{best_model_name.lower()}_thresholds.pkl'), 'wb') as f:
+                pickle.dump(self.best_thresholds, f)
+            logger.info(f"Best thresholds saved at {os.path.join(models_dir, f'{best_model_name.lower()}_thresholds.pkl')}")
+
+            return best_model_name, self
+        except Exception as e:
+            logger.error(f"Error during model training or saving: {e}")
+            raise
