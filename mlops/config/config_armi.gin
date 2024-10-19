@@ -5,9 +5,15 @@ configure_logging.reports_dir = "C:/Users/arman/PycharmProjects/MLOps/reports"
 save_model.models_dir = "C:/Users/arman/PycharmProjects/MLOps/models"
 train_and_save_best_model.models_dir = "C:/Users/arman/PycharmProjects/MLOps/models"
 
+# Models configuration
+run.config_path = "C:/Users/arman/PycharmProjects/MLOps/mlops/config/model_config.yaml"
+
 # MLflow configuration
 configure_mlflow.experiment_name = "Amphibians_Classification"
 configure_mlflow.tracking_uri = "file:///C:/Users/arman/PycharmProjects/MLOps/reports/mlruns"
+
+# To run mlflow ui execute:
+# mlflow ui --backend-store-uri file:///C:/Users/arman/PycharmProjects/MLOps/reports/mlruns
 
 DataLoader.base_dir = 'C:/Users/arman/PycharmProjects/MLOps'
 DataLoader.data_url = 'https://archive.ics.uci.edu/static/public/528/amphibians.zip'

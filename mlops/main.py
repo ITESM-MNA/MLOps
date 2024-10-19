@@ -3,18 +3,11 @@ import logging
 import os
 import gin
 import mlflow
-from sklearnex import patch_sklearn
+# from sklearnex import patch_sklearn
 
 from feature_engineering.data_preprocessing import DataPreprocessing
 from modeling.prediction import Predictor
 from modeling.train_model import TrainModel
-
-# Patch sklearn to allow Intel processor speed up
-try:
-    patch_sklearn()
-except ImportError as e:
-    print(f"Not an Intel processor: {e}")
-    pass
 
 
 # Function to configure logging to both console and file
@@ -53,7 +46,8 @@ def ensure_directories_exist():
     os.makedirs('reports', exist_ok=True)
 
 
-def run():
+@gin.configurable
+def run(config_path: str):
     try:
         # Start the MLflow run here
         with mlflow.start_run() as run:
@@ -64,7 +58,7 @@ def run():
             X_pca, y = DataPreprocessing.load_and_preprocess_data()
 
             # Train the best model and save it
-            train_model = TrainModel(X_pca, y)
+            train_model = TrainModel(X_pca, y, config_path)
             best_model_name, model_trainer = train_model.train_and_save_best_model()
 
             # Load the trained model
@@ -93,7 +87,8 @@ def run():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--config', type=str, required=True, help='Path to the config file')
+    parser.add_argument('-c', '--config', type=str, required=True, help='Path to the Gin config file')
+    # parser.add_argument('--model-config', type=str, required=True, help='Path to the model YAML config file')
     args = parser.parse_args()
 
     # Ensure directories exist
@@ -103,11 +98,13 @@ if __name__ == '__main__':
     try:
         gin.parse_config_file(args.config)
         logger = configure_logging()
-        configure_mlflow()  # configure MLflow
-        logger.info("Gin configuration loaded successfully.")
+        configure_mlflow()
+        logger.info("Gin configuration and MLflow tracking configured successfully.")
     except Exception as e:
-        print(f"Failed to load Gin configuration: {e}")
+        print(f"Failed to load configuration: {e}")
         raise
 
     # Execute the main run function
     run()
+
+

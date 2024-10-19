@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/arman/PycharmProjects/MLOps/reports/mlruns/366399199608140685/b1580da4dbce4af5a5f6cd2ed386b60b/artifacts
+end_time: 1729330075057
+entry_point_name: ''
+experiment_id: '366399199608140685'
+lifecycle_stage: active
+run_id: b1580da4dbce4af5a5f6cd2ed386b60b
+run_name: luminous-calf-179
+run_uuid: b1580da4dbce4af5a5f6cd2ed386b60b
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1729330073713
+status: 3
+tags: []
+user_id: armi
