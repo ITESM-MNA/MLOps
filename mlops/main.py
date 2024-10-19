@@ -12,9 +12,8 @@ from modeling.train_model import TrainModel
 try:
     patch_sklearn()
 except ImportError as e:
-    print(f"Error importing patch_sklearn: {e}")
-except Exception as e:
-    print(f"An unexpected error occurred: {e}")
+    print(f"Not an Intel processor: {e}")
+    pass
 
 
 # Function to configure logging to both console and file
