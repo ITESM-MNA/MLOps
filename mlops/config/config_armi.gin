@@ -1,0 +1,19 @@
+# Logs directory
+configure_logging.reports_dir = "C:/Users/arman/PycharmProjects/MLOps/reports"
+
+# Models directory
+save_model.models_dir = "C:/Users/arman/PycharmProjects/MLOps/models"
+train_and_save_best_model.models_dir = "C:/Users/arman/PycharmProjects/MLOps/models"
+
+# MLflow configuration
+configure_mlflow.experiment_name = "Amphibians_Classification"
+configure_mlflow.tracking_uri = "file:///C:/Users/arman/PycharmProjects/MLOps/reports/mlruns"
+
+DataLoader.base_dir = 'C:/Users/arman/PycharmProjects/MLOps'
+DataLoader.data_url = 'https://archive.ics.uci.edu/static/public/528/amphibians.zip'
+DataLoader.local_zip_path = 'data/amphibians.zip'
+DataLoader.extract_dir = 'data/extracted'
+DataLoader.extracted_file_name = 'amphibians.csv'
+DataLoader.delimiter = ';'
+DataLoader.encoding = 'utf-8'
+DataLoader.error_bad_lines = True

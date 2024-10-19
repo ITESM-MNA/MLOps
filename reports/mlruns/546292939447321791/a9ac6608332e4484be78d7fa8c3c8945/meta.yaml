@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/arman/PycharmProjects/MLOps/reports/mlruns/546292939447321791/a9ac6608332e4484be78d7fa8c3c8945/artifacts
+end_time: 1729319910367
+entry_point_name: ''
+experiment_id: '546292939447321791'
+lifecycle_stage: active
+run_id: a9ac6608332e4484be78d7fa8c3c8945
+run_name: merciful-quail-736
+run_uuid: a9ac6608332e4484be78d7fa8c3c8945
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1729319909022
+status: 3
+tags: []
+user_id: armi

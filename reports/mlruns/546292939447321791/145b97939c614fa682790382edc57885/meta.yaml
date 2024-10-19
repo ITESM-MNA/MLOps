@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/arman/PycharmProjects/MLOps/reports/mlruns/546292939447321791/145b97939c614fa682790382edc57885/artifacts
+end_time: 1729319916767
+entry_point_name: ''
+experiment_id: '546292939447321791'
+lifecycle_stage: active
+run_id: 145b97939c614fa682790382edc57885
+run_name: nimble-squirrel-471
+run_uuid: 145b97939c614fa682790382edc57885
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1729318489978
+status: 3
+tags: []
+user_id: armi

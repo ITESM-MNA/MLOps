@@ -3,6 +3,7 @@ import numpy as np
 import os
 import pickle
 import gin
+import mlflow
 
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.calibration import CalibratedClassifierCV
@@ -142,6 +143,10 @@ class TrainModel:
         logger.info(f"Best parameters for {model_name}: {grid_search.best_params_}")
         logger.info(f"Best F1 score (samples): {grid_search.best_score_}")
 
+        # Log best parameters and score with MLflow
+        mlflow.log_params(grid_search.best_params_)
+        mlflow.log_metric(f"{model_name}_best_f1_score", grid_search.best_score_)
+
         return grid_search.best_estimator_
 
     def train_model(self, model_name):
@@ -156,6 +161,9 @@ class TrainModel:
         model.fit(self.X_train, self.y_train)
 
         self.best_thresholds = self.find_best_threshold(model, self.X_test, self.y_test)
+
+        # Log model with MLflow
+        mlflow.sklearn.log_model(model, f"{model_name}_model")
 
         return model
 
@@ -267,6 +275,15 @@ class TrainModel:
             'best_thresholds': self.best_thresholds
         }
 
+        # Log metrics with MLflow
+        for metric_name, metric_value in mean_metrics.items():
+            if metric_name != 'best_thresholds':
+                mlflow.log_metric(f"mean_{metric_name}", metric_value)
+
+        for label, metrics in class_metrics.items():
+            for metric_name, metric_value in metrics.items():
+                mlflow.log_metric(f"{label}_{metric_name}", metric_value)
+
         logger.info(f"Mean Precision: {mean_metrics['precision']:.4f}")
         logger.info(f"Mean Recall: {mean_metrics['recall']:.4f}")
         logger.info(f"Mean F1 Score: {mean_metrics['f1_score']:.4f}")
@@ -319,11 +336,13 @@ class TrainModel:
 
         results = {}
         for model_name in self.models:
-            logger.info(f"Training and evaluating model: {model_name}")
-            trained_model = self.tune_model(model_name)
-            if trained_model:
-                mean_metrics, class_metrics = self.evaluate_model_performance(trained_model)
-                results[model_name] = mean_metrics
+            with mlflow.start_run(nested=True):
+                mlflow.log_param("model_name", model_name)
+                logger.info(f"Training and evaluating model: {model_name}")
+                trained_model = self.tune_model(model_name)
+                if trained_model:
+                    mean_metrics, class_metrics = self.evaluate_model_performance(trained_model)
+                    results[model_name] = mean_metrics
 
         logger.info("\nAll model results:\n")
         for model_name, metrics in results.items():
@@ -350,6 +369,8 @@ class TrainModel:
     @gin.configurable
     def train_and_save_best_model(self, models_dir):
         try:
+            mlflow.log_param("models_dir", models_dir)
+
             # Train and test the model
             self.train_test_split()
 
@@ -359,17 +380,40 @@ class TrainModel:
             # Find the model with the best F1 score
             best_model_name = max(results, key=lambda x: results[x]['f1_score'])
             logger.info(f"Best model based on F1 Score: {best_model_name}")
+            mlflow.log_param("best_model", best_model_name)
 
-            # Train the best model and save it
+            # Train the best model
             trained_model = self.train_model(best_model_name)
-            self.save_model(trained_model, best_model_name)
+
+            # Save the model (this was missing)
+            model_path = self.save_model(trained_model, best_model_name, models_dir)
+            mlflow.log_artifact(model_path)
+
+            # Define input and output schema
+            from mlflow.models import ModelSignature
+            from mlflow.types.schema import Schema, ColSpec
+            input_schema = Schema([ColSpec("double", f"feature_{i}") for i in range(self.X.shape[1])])
+            output_schema = Schema([ColSpec("integer", f"label_{i}") for i in range(self.y.shape[1])])
+            signature = ModelSignature(inputs=input_schema, outputs=output_schema)
+
+            # Log and register the model
+            mlflow.sklearn.log_model(
+                sk_model=trained_model,
+                artifact_path="model",
+                registered_model_name="AmphibiansClassifier",
+                signature=signature
+            )
+            logger.info(f"Model '{best_model_name}' registered as 'AmphibiansClassifier' in MLflow")
 
             # Save best thresholds
-            with open(os.path.join(models_dir, f'{best_model_name.lower()}_thresholds.pkl'), 'wb') as f:
+            thresholds_path = os.path.join(models_dir, f'{best_model_name.lower()}_thresholds.pkl')
+            with open(thresholds_path, 'wb') as f:
                 pickle.dump(self.best_thresholds, f)
-            logger.info(f"Best thresholds saved at {os.path.join(models_dir, f'{best_model_name.lower()}_thresholds.pkl')}")
+            logger.info(f"Best thresholds saved at {thresholds_path}")
+            mlflow.log_artifact(thresholds_path)
 
             return best_model_name, self
         except Exception as e:
             logger.error(f"Error during model training or saving: {e}")
+            mlflow.log_param("error", str(e))
             raise
