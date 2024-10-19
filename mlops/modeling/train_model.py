@@ -6,6 +6,10 @@ import gin
 import importlib
 import mlflow
 import yaml
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import confusion_matrix, roc_curve, auc
+from sklearn.preprocessing import label_binarize
 
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.calibration import CalibratedClassifierCV
@@ -196,10 +200,68 @@ class TrainModel:
                 logger.info(f"Actual: {actual_labels[i]}")
                 logger.info(f"Predicted: {predicted_labels[i]}")
 
+    def create_confusion_matrix(self, y_true, y_pred, class_names):
+        plt.figure(figsize=(10, 8))
+        cm = confusion_matrix(y_true.argmax(axis=1), y_pred.argmax(axis=1))
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=class_names, yticklabels=class_names)
+        plt.title('Confusion Matrix')
+        plt.ylabel('True Label')
+        plt.xlabel('Predicted Label')
+        plt.tight_layout()
+
+        # Save the plot and log it as an artifact
+        cm_path = "confusion_matrix.png"
+        plt.savefig(cm_path)
+        mlflow.log_artifact(cm_path)
+        plt.close()
+
+    def create_roc_curve(self, y_true, y_pred_proba, class_names):
+        y_true_bin = label_binarize(y_true, classes=range(len(class_names)))
+
+        plt.figure(figsize=(10, 8))
+        for i, class_name in enumerate(class_names):
+            fpr, tpr, _ = roc_curve(y_true_bin[:, i], y_pred_proba[i][:, 1])
+            roc_auc = auc(fpr, tpr)
+            plt.plot(fpr, tpr, lw=2, label=f'{class_name} (AUC = {roc_auc:.2f})')
+
+        plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+        plt.xlim([0.0, 1.0])
+        plt.ylim([0.0, 1.05])
+        plt.xlabel('False Positive Rate')
+        plt.ylabel('True Positive Rate')
+        plt.title('Receiver Operating Characteristic (ROC) Curve')
+        plt.legend(loc="lower right")
+        plt.tight_layout()
+
+        roc_path = "roc_curve.png"
+        plt.savefig(roc_path)
+        mlflow.log_artifact(roc_path)
+        plt.close()
+
+    def create_precision_recall_curve(self, y_true, y_pred_proba, class_names):
+        y_true_bin = label_binarize(y_true, classes=range(len(class_names)))
+
+        plt.figure(figsize=(10, 8))
+        for i, class_name in enumerate(class_names):
+            precision, recall, _ = precision_recall_curve(y_true_bin[:, i], y_pred_proba[i][:, 1])
+            plt.plot(recall, precision, lw=2, label=f'{class_name}')
+
+        plt.xlabel('Recall')
+        plt.ylabel('Precision')
+        plt.title('Precision-Recall Curve')
+        plt.legend(loc="lower left")
+        plt.tight_layout()
+
+        pr_path = "precision_recall_curve.png"
+        plt.savefig(pr_path)
+        mlflow.log_artifact(pr_path)
+        plt.close()
+
     def evaluate_model_performance(self, model):
         logger.info(f"Evaluating {model.__class__.__name__} model...")
 
         y_pred = self.predict_with_threshold(model, self.X_test)
+        y_pred_proba = model.predict_proba(self.X_test)
 
         # Ensure y_pred and y_test have the same shape
         if y_pred.shape != self.y_test.shape:
@@ -266,6 +328,12 @@ class TrainModel:
 
         # Log misclassifications
         self.log_misclassifications(self.y_test, y_pred)
+
+        # Create and log visualizations
+        class_names = [f'Label_{i}' for i in range(self.y_test.shape[1])]
+        self.create_confusion_matrix(self.y_test, y_pred, class_names)
+        self.create_roc_curve(self.y_test, y_pred_proba, class_names)
+        self.create_precision_recall_curve(self.y_test, y_pred_proba, class_names)
 
         return mean_metrics, class_metrics
 

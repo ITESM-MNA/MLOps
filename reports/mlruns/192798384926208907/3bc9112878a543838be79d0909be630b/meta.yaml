@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/arman/PycharmProjects/MLOps/reports/mlruns/192798384926208907/3bc9112878a543838be79d0909be630b/artifacts
+end_time: 1729365493056
+entry_point_name: ''
+experiment_id: '192798384926208907'
+lifecycle_stage: active
+run_id: 3bc9112878a543838be79d0909be630b
+run_name: adaptable-wolf-837
+run_uuid: 3bc9112878a543838be79d0909be630b
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1729365491484
+status: 3
+tags: []
+user_id: armi
