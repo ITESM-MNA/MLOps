@@ -1,9 +1,7 @@
 import argparse
 import logging
-import pickle
 import os
 import gin
-import numpy as np
 from sklearnex import patch_sklearn
 
 from feature_engineering.data_preprocessing import DataPreprocessing
@@ -17,6 +15,7 @@ except ImportError as e:
     print(f"Error importing patch_sklearn: {e}")
 except Exception as e:
     print(f"An unexpected error occurred: {e}")
+
 
 # Function to configure logging to both console and file
 @gin.configurable
