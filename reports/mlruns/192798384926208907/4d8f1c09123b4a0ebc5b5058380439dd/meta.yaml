@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/arman/PycharmProjects/MLOps/reports/mlruns/192798384926208907/4d8f1c09123b4a0ebc5b5058380439dd/artifacts
+end_time: 1729365856422
+entry_point_name: ''
+experiment_id: '192798384926208907'
+lifecycle_stage: active
+run_id: 4d8f1c09123b4a0ebc5b5058380439dd
+run_name: gentle-snail-209
+run_uuid: 4d8f1c09123b4a0ebc5b5058380439dd
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1729365718048
+status: 3
+tags: []
+user_id: armi

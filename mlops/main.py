@@ -3,6 +3,7 @@ import logging
 import os
 import gin
 import mlflow
+from datetime import datetime
 # from sklearnex import patch_sklearn
 
 from feature_engineering.data_preprocessing import DataPreprocessing
@@ -46,27 +47,55 @@ def ensure_directories_exist():
     os.makedirs('reports', exist_ok=True)
 
 
+def generate_run_name(model_name, hyperparameters):
+    timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M")
+    hyperparam_str = "_".join([f"{k[:3]}{v}" for k, v in hyperparameters.items()][:3])  # Limit to first 3 hyperparameters
+    return f"{model_name}_{hyperparam_str}_{timestamp}"
+
+
 @gin.configurable
 def run(config_path: str):
     try:
-        # Start the MLflow run here
-        with mlflow.start_run() as run:
-            # Log the run ID
-            logger.info(f"Started MLflow run with ID: {run.info.run_id}")
+        # Load and preprocess the data
+        X_pca, y = DataPreprocessing.load_and_preprocess_data()
 
-            # Load and preprocess the data
-            X_pca, y = DataPreprocessing.load_and_preprocess_data()
+        # Initialize TrainModel
+        train_model = TrainModel(X_pca, y, config_path)
 
-            # Train the best model and save it
-            train_model = TrainModel(X_pca, y, config_path)
-            best_model_name, model_trainer = train_model.train_and_save_best_model()
+        # Train and evaluate all models
+        results = train_model.run_all_models()
+
+        # Find the best model
+        best_model_name = max(results, key=lambda x: results[x]['f1_score'])
+        logger.info(f"Best model based on F1 Score: {best_model_name}")
+
+        # Get the best hyperparameters
+        best_hyperparameters = train_model.models[best_model_name].get_params()
+
+        # Generate a meaningful run name
+        run_name = generate_run_name(best_model_name, best_hyperparameters)
+
+        # Start the MLflow run with the generated name
+        with mlflow.start_run(run_name=run_name) as run:
+            logger.info(f"Started MLflow run '{run_name}' with ID: {run.info.run_id}")
+
+            # Log the best model name and hyperparameters
+            mlflow.log_param("best_model", best_model_name)
+            mlflow.log_params(best_hyperparameters)
+
+            # Train the best model
+            trained_model = train_model.train_model(best_model_name)
+
+            # Save the model
+            model_path = train_model.save_model(trained_model, best_model_name, 'models')
+            mlflow.log_artifact(model_path)
 
             # Load the trained model
-            predictor = Predictor(model_path=f'models/{best_model_name.lower()}_model.pkl')
+            predictor = Predictor(model_path=model_path)
             predictor.load_model()
 
             # Evaluate model performance
-            mean_metrics, class_metrics = model_trainer.evaluate_model_performance(predictor.model)
+            mean_metrics, class_metrics = train_model.evaluate_model_performance(predictor.model)
 
             # Log model evaluation metrics
             logger.info(f"Evaluation metrics: {mean_metrics}")
@@ -78,7 +107,7 @@ def run(config_path: str):
 
             # Run predictions on a few samples
             sample_indices = [0, 1, 5, 10]  # You can adjust these indices as needed
-            Predictor.run_predictions(predictor, model_trainer, sample_indices)
+            Predictor.run_predictions(predictor, train_model, sample_indices)
 
     except Exception as e:
         logger.error(f"An error occurred in the pipeline: {e}")
@@ -88,7 +117,6 @@ def run(config_path: str):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', type=str, required=True, help='Path to the Gin config file')
-    # parser.add_argument('--model-config', type=str, required=True, help='Path to the model YAML config file')
     args = parser.parse_args()
 
     # Ensure directories exist

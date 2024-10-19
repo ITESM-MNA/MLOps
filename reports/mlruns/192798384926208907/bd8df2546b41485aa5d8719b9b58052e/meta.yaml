@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/arman/PycharmProjects/MLOps/reports/mlruns/192798384926208907/bd8df2546b41485aa5d8719b9b58052e/artifacts
+end_time: 1729366215234
+entry_point_name: ''
+experiment_id: '192798384926208907'
+lifecycle_stage: active
+run_id: bd8df2546b41485aa5d8719b9b58052e
+run_name: peaceful-whale-374
+run_uuid: bd8df2546b41485aa5d8719b9b58052e
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1729366214088
+status: 3
+tags: []
+user_id: armi
