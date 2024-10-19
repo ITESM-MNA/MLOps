@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
+from dataset.data_loader import DataLoader
 import logging
 
 # Initialize logging for the class
@@ -131,3 +132,23 @@ class DataPreprocessing:
 
         # Return the processed features (X_pca) and labels (y)
         return X_pca, y
+
+    def load_and_preprocess_data():
+        try:
+            # Initialize the DataLoader
+            data_loader = DataLoader()
+
+            # Load the dataset
+            df = data_loader.load()
+
+            # Preprocess the data and labels
+            data_preprocessor = DataPreprocessing(df)
+            X_pca, y = data_preprocessor.preprocess()  # y is already binarized and ready for use
+
+            # Log the initial shapes of X_pca and y
+            logger.info(f"Shape of X_pca: {X_pca.shape}")
+            logger.info(f"Shape of y: {y.shape}")
+            return X_pca, y
+        except Exception as e:
+            logger.error(f"Error during data loading and preprocessing: {e}")
+            raise

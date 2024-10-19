@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/arman/PycharmProjects/MLOps/reports/mlruns/366399199608140685/79cc45c52ef74d3a906b4d05890e4b8a/artifacts
+end_time: 1729329377547
+entry_point_name: ''
+experiment_id: '366399199608140685'
+lifecycle_stage: active
+run_id: 79cc45c52ef74d3a906b4d05890e4b8a
+run_name: aged-snail-723
+run_uuid: 79cc45c52ef74d3a906b4d05890e4b8a
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1729329376387
+status: 3
+tags: []
+user_id: armi

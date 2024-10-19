@@ -1,5 +1,11 @@
 import logging
 import numpy as np
+import os
+import pickle
+import gin
+import importlib
+import mlflow
+import yaml
 
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.calibration import CalibratedClassifierCV
@@ -20,7 +26,9 @@ logging.basicConfig(level=logging.INFO)
 
 
 class TrainModel:
-    def __init__(self, X, y, test_size=0.3, random_state=42):
+    def __init__(self, X, y, config_path: str):
+        with open(config_path, 'r') as file:
+            self.config = yaml.safe_load(file)
         self.X = X
         self.y = y
         self.X_train = None
@@ -29,65 +37,29 @@ class TrainModel:
         self.y_test = None
         self.y_train_df = None
         self.y_test_df = None
-        self.test_size = test_size
-        self.random_state = random_state
+        self.test_size = self.config['training']['test_size']
+        self.random_state = self.config['training']['random_state']
+        self.cv_folds = self.config['training']['cv_folds']
         self.best_thresholds = None
-        self.models = {
-            "Logistic Regression": MultiOutputClassifier(LogisticRegression()),
-            "Random Forest": MultiOutputClassifier(RandomForestClassifier()),
-            "Extra Trees": MultiOutputClassifier(ExtraTreesClassifier()),
-            "AdaBoost": MultiOutputClassifier(AdaBoostClassifier()),
-            "Gradient Boosting": MultiOutputClassifier(GradientBoostingClassifier()),
-            "Decision Tree": MultiOutputClassifier(DecisionTreeClassifier()),
-            "SVM": MultiOutputClassifier(SVC(probability=True))
-        }
+        self.models = self.load_models()
+        self.hyperparameters = self.load_hyperparameters()
 
-        self.hyperparameters = {
-            'Logistic Regression': {
-                'estimator__C': [0.1, 1, 10],
-                'estimator__solver': ['liblinear', 'saga'],
-                'estimator__class_weight': ['balanced'],
-                'estimator__max_iter': [100, 200, 500, 1000]
-            },
-            'Random Forest': {
-                'estimator__n_estimators': [50, 100, 200],
-                'estimator__max_depth': [5, 10, None],
-                'estimator__min_samples_split': [2, 5],
-                'estimator__min_samples_leaf': [1, 2],
-                'estimator__class_weight': ['balanced', 'balanced_subsample']
-            },
-            'Extra Trees': {
-                'estimator__n_estimators': [50, 100, 200],
-                'estimator__max_depth': [5, 10, None],
-                'estimator__min_samples_split': [2, 5],
-                'estimator__min_samples_leaf': [1, 2],
-                'estimator__class_weight': ['balanced', 'balanced_subsample']
-            },
-            'AdaBoost': {
-                'estimator__n_estimators': [50, 100, 200],
-                'estimator__learning_rate': [0.01, 0.1, 1],
-                'estimator__algorithm': ['SAMME', 'SAMME.R']
-            },
-            'Gradient Boosting': {
-                'estimator__n_estimators': [50, 100, 200],
-                'estimator__learning_rate': [0.01, 0.1, 1],
-                'estimator__max_depth': [3, 5, 7],
-                'estimator__min_samples_split': [2, 5],
-                'estimator__min_samples_leaf': [1, 2]
-            },
-            'Decision Tree': {
-                'estimator__max_depth': [5, 10, None],
-                'estimator__min_samples_split': [2, 5],
-                'estimator__min_samples_leaf': [1, 2],
-                'estimator__class_weight': ['balanced']
-            },
-            'SVM': {
-                'estimator__C': [0.1, 1, 10],
-                'estimator__kernel': ['linear', 'rbf'],
-                'estimator__gamma': ['scale', 'auto'],
-                'estimator__class_weight': ['balanced']
+    def load_models(self):
+        models = {}
+        for model_name, model_config in self.config['models'].items():
+            module_name, class_name = model_config['class'].rsplit('.', 1)
+            module = importlib.import_module(module_name)
+            model_class = getattr(module, class_name)
+            models[model_name] = MultiOutputClassifier(model_class())
+        return models
+
+    def load_hyperparameters(self):
+        hyperparameters = {}
+        for model_name, model_config in self.config['models'].items():
+            hyperparameters[model_name] = {
+                f'estimator__{k}': v for k, v in model_config['hyperparameters'].items()
             }
-        }
+        return hyperparameters
 
     def train_test_split(self):
         """
@@ -108,7 +80,7 @@ class TrainModel:
         self.y_train = self.y_train_df.astype(int).to_numpy()
         self.y_test = self.y_test_df.astype(int).to_numpy()
 
-    def tune_model(self, model_name, cv_folds=5):
+    def tune_model(self, model_name):
         """
         Tune hyperparameters for the model using GridSearchCV.
         """
@@ -128,7 +100,7 @@ class TrainModel:
         grid_search = GridSearchCV(
             model,
             param_grid,
-            cv=cv_folds,
+            cv=self.cv_folds,
             scoring=scoring,
             refit='f1_samples',
             return_train_score=True
@@ -138,6 +110,10 @@ class TrainModel:
 
         logger.info(f"Best parameters for {model_name}: {grid_search.best_params_}")
         logger.info(f"Best F1 score (samples): {grid_search.best_score_}")
+
+        # Log best parameters and score with MLflow
+        mlflow.log_params(grid_search.best_params_)
+        mlflow.log_metric(f"{model_name}_best_f1_score", grid_search.best_score_)
 
         return grid_search.best_estimator_
 
@@ -153,6 +129,9 @@ class TrainModel:
         model.fit(self.X_train, self.y_train)
 
         self.best_thresholds = self.find_best_threshold(model, self.X_test, self.y_test)
+
+        # Log model with MLflow
+        mlflow.sklearn.log_model(model, f"{model_name}_model")
 
         return model
 
@@ -264,6 +243,15 @@ class TrainModel:
             'best_thresholds': self.best_thresholds
         }
 
+        # Log metrics with MLflow
+        for metric_name, metric_value in mean_metrics.items():
+            if metric_name != 'best_thresholds':
+                mlflow.log_metric(f"mean_{metric_name}", metric_value)
+
+        for label, metrics in class_metrics.items():
+            for metric_name, metric_value in metrics.items():
+                mlflow.log_metric(f"{label}_{metric_name}", metric_value)
+
         logger.info(f"Mean Precision: {mean_metrics['precision']:.4f}")
         logger.info(f"Mean Recall: {mean_metrics['recall']:.4f}")
         logger.info(f"Mean F1 Score: {mean_metrics['f1_score']:.4f}")
@@ -316,11 +304,13 @@ class TrainModel:
 
         results = {}
         for model_name in self.models:
-            logger.info(f"Training and evaluating model: {model_name}")
-            trained_model = self.tune_model(model_name)
-            if trained_model:
-                mean_metrics, class_metrics = self.evaluate_model_performance(trained_model)
-                results[model_name] = mean_metrics
+            with mlflow.start_run(nested=True):
+                mlflow.log_param("model_name", model_name)
+                logger.info(f"Training and evaluating model: {model_name}")
+                trained_model = self.tune_model(model_name)
+                if trained_model:
+                    mean_metrics, class_metrics = self.evaluate_model_performance(trained_model)
+                    results[model_name] = mean_metrics
 
         logger.info("\nAll model results:\n")
         for model_name, metrics in results.items():
@@ -329,3 +319,69 @@ class TrainModel:
                         f"Hamming Loss: {metrics['hamming_loss']:.4f}")
 
         return results
+
+    @gin.configurable
+    def save_model(self, model, model_name, models_dir):
+        # Ensure the directory exists
+        os.makedirs(models_dir, exist_ok=True)
+
+        model_path = os.path.join(models_dir, f'{model_name.lower()}_model.pkl')
+
+        # Save the model
+        with open(model_path, 'wb') as f:
+            pickle.dump(model, f)
+        logger.info(f"Trained model saved at {model_path}")
+
+        return model_path
+
+    @gin.configurable
+    def train_and_save_best_model(self, models_dir):
+        try:
+            mlflow.log_param("models_dir", models_dir)
+
+            # Train and test the model
+            self.train_test_split()
+
+            # Train all models and get the results
+            results = self.run_all_models()
+
+            # Find the model with the best F1 score
+            best_model_name = max(results, key=lambda x: results[x]['f1_score'])
+            logger.info(f"Best model based on F1 Score: {best_model_name}")
+            mlflow.log_param("best_model", best_model_name)
+
+            # Train the best model
+            trained_model = self.train_model(best_model_name)
+
+            # Save the model (this was missing)
+            model_path = self.save_model(trained_model, best_model_name, models_dir)
+            mlflow.log_artifact(model_path)
+
+            # Define input and output schema
+            from mlflow.models import ModelSignature
+            from mlflow.types.schema import Schema, ColSpec
+            input_schema = Schema([ColSpec("double", f"feature_{i}") for i in range(self.X.shape[1])])
+            output_schema = Schema([ColSpec("integer", f"label_{i}") for i in range(self.y.shape[1])])
+            signature = ModelSignature(inputs=input_schema, outputs=output_schema)
+
+            # Log and register the model
+            mlflow.sklearn.log_model(
+                sk_model=trained_model,
+                artifact_path="model",
+                registered_model_name="AmphibiansClassifier",
+                signature=signature
+            )
+            logger.info(f"Model '{best_model_name}' registered as 'AmphibiansClassifier' in MLflow")
+
+            # Save best thresholds
+            thresholds_path = os.path.join(models_dir, f'{best_model_name.lower()}_thresholds.pkl')
+            with open(thresholds_path, 'wb') as f:
+                pickle.dump(self.best_thresholds, f)
+            logger.info(f"Best thresholds saved at {thresholds_path}")
+            mlflow.log_artifact(thresholds_path)
+
+            return best_model_name, self
+        except Exception as e:
+            logger.error(f"Error during model training or saving: {e}")
+            mlflow.log_param("error", str(e))
+            raise
