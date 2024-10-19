@@ -1,11 +1,12 @@
 # Logs directory
-configure_logging.reports_dir = "C:/Users/arman/PycharmProjects/MLOps/reports"
+configure_logging.reports_dir = "reports"
 
 # Models directory
-save_model.models_dir = "C:/Users/arman/PycharmProjects/MLOps/models"
-train_and_save_best_model.models_dir = "C:/Users/arman/PycharmProjects/MLOps/models"
+save_model.models_dir = "models"
+train_and_save_best_model.models_dir = "models"
 
-DataLoader.base_dir = 'C:/Users/arman/PycharmProjects/MLOps'
+# DataLoader configurations
+DataLoader.base_dir = '.'
 DataLoader.data_url = 'https://archive.ics.uci.edu/static/public/528/amphibians.zip'
 DataLoader.local_zip_path = 'data/amphibians.zip'
 DataLoader.extract_dir = 'data/extracted'
