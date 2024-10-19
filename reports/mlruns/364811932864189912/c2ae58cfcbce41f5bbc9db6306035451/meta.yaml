@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/arman/PycharmProjects/MLOps/reports/mlruns/364811932864189912/c2ae58cfcbce41f5bbc9db6306035451/artifacts
+end_time: 1729326375816
+entry_point_name: ''
+experiment_id: '364811932864189912'
+lifecycle_stage: active
+run_id: c2ae58cfcbce41f5bbc9db6306035451
+run_name: bright-cub-974
+run_uuid: c2ae58cfcbce41f5bbc9db6306035451
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1729326076380
+status: 3
+tags: []
+user_id: armi

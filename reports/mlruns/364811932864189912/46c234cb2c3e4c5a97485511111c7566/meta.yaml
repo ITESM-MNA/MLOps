@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/arman/PycharmProjects/MLOps/reports/mlruns/364811932864189912/46c234cb2c3e4c5a97485511111c7566/artifacts
+end_time: 1729326278654
+entry_point_name: ''
+experiment_id: '364811932864189912'
+lifecycle_stage: active
+run_id: 46c234cb2c3e4c5a97485511111c7566
+run_name: overjoyed-jay-338
+run_uuid: 46c234cb2c3e4c5a97485511111c7566
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1729326254517
+status: 3
+tags: []
+user_id: armi

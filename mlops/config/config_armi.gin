@@ -9,6 +9,9 @@ train_and_save_best_model.models_dir = "C:/Users/arman/PycharmProjects/MLOps/mod
 configure_mlflow.experiment_name = "Amphibians_Classification"
 configure_mlflow.tracking_uri = "file:///C:/Users/arman/PycharmProjects/MLOps/reports/mlruns"
 
+# To run mlflow ui execute:
+# mlflow ui --backend-store-uri file:///C:/Users/arman/PycharmProjects/MLOps/reports/mlruns
+
 DataLoader.base_dir = 'C:/Users/arman/PycharmProjects/MLOps'
 DataLoader.data_url = 'https://archive.ics.uci.edu/static/public/528/amphibians.zip'
 DataLoader.local_zip_path = 'data/amphibians.zip'

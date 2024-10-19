@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/arman/PycharmProjects/MLOps/reports/mlruns/364811932864189912/f27f1cea481046bbaccd7dd4b90e8670/artifacts
+end_time: 1729326076966
+entry_point_name: ''
+experiment_id: '364811932864189912'
+lifecycle_stage: active
+run_id: f27f1cea481046bbaccd7dd4b90e8670
+run_name: nebulous-stoat-263
+run_uuid: f27f1cea481046bbaccd7dd4b90e8670
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1729326076424
+status: 3
+tags: []
+user_id: armi

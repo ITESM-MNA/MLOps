@@ -112,7 +112,7 @@ class TrainModel:
         self.y_train = self.y_train_df.astype(int).to_numpy()
         self.y_test = self.y_test_df.astype(int).to_numpy()
 
-    def tune_model(self, model_name, cv_folds=5):
+    def tune_model(self, model_name, cv_folds=2):
         """
         Tune hyperparameters for the model using GridSearchCV.
         """

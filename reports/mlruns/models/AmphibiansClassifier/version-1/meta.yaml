@@ -1,0 +1,14 @@
+aliases: []
+creation_timestamp: 1729326375656
+current_stage: None
+description: null
+last_updated_timestamp: 1729326375656
+name: AmphibiansClassifier
+run_id: c2ae58cfcbce41f5bbc9db6306035451
+run_link: null
+source: file:///C:/Users/arman/PycharmProjects/MLOps/reports/mlruns/364811932864189912/c2ae58cfcbce41f5bbc9db6306035451/artifacts/model
+status: READY
+status_message: null
+storage_location: file:///C:/Users/arman/PycharmProjects/MLOps/reports/mlruns/364811932864189912/c2ae58cfcbce41f5bbc9db6306035451/artifacts/model
+user_id: null
+version: 1

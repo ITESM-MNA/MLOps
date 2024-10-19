@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/arman/PycharmProjects/MLOps/reports/mlruns/364811932864189912/3d2e63da9edc4d1d90df21c2cf336fcb/artifacts
+end_time: 1729326162317
+entry_point_name: ''
+experiment_id: '364811932864189912'
+lifecycle_stage: active
+run_id: 3d2e63da9edc4d1d90df21c2cf336fcb
+run_name: sassy-crane-660
+run_uuid: 3d2e63da9edc4d1d90df21c2cf336fcb
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1729326076973
+status: 3
+tags: []
+user_id: armi
