@@ -369,7 +369,6 @@ class TrainModel:
     @gin.configurable
     def train_and_save_best_model(self, models_dir):
         try:
-            # Remove the MLflow start_run from here
             mlflow.log_param("models_dir", models_dir)
 
             # Train and test the model
@@ -383,10 +382,28 @@ class TrainModel:
             logger.info(f"Best model based on F1 Score: {best_model_name}")
             mlflow.log_param("best_model", best_model_name)
 
-            # Train the best model and save it
+            # Train the best model
             trained_model = self.train_model(best_model_name)
-            model_path = self.save_model(trained_model, best_model_name)
+
+            # Save the model (this was missing)
+            model_path = self.save_model(trained_model, best_model_name, models_dir)
             mlflow.log_artifact(model_path)
+
+            # Define input and output schema
+            from mlflow.models import ModelSignature
+            from mlflow.types.schema import Schema, ColSpec
+            input_schema = Schema([ColSpec("double", f"feature_{i}") for i in range(self.X.shape[1])])
+            output_schema = Schema([ColSpec("integer", f"label_{i}") for i in range(self.y.shape[1])])
+            signature = ModelSignature(inputs=input_schema, outputs=output_schema)
+
+            # Log and register the model
+            mlflow.sklearn.log_model(
+                sk_model=trained_model,
+                artifact_path="model",
+                registered_model_name="AmphibiansClassifier",
+                signature=signature
+            )
+            logger.info(f"Model '{best_model_name}' registered as 'AmphibiansClassifier' in MLflow")
 
             # Save best thresholds
             thresholds_path = os.path.join(models_dir, f'{best_model_name.lower()}_thresholds.pkl')

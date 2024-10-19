@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/arman/PycharmProjects/MLOps/reports/mlruns/546292939447321791/cd6e6ef876af4bf8943e22e90cb43fd4/artifacts
+end_time: 1729319487894
+entry_point_name: ''
+experiment_id: '546292939447321791'
+lifecycle_stage: active
+run_id: cd6e6ef876af4bf8943e22e90cb43fd4
+run_name: delicate-bear-58
+run_uuid: cd6e6ef876af4bf8943e22e90cb43fd4
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1729319277343
+status: 3
+tags: []
+user_id: armi

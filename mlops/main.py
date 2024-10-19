@@ -48,6 +48,11 @@ def configure_mlflow(experiment_name, tracking_uri):
     logging.info(f"MLflow configured with experiment '{experiment_name}' and tracking URI '{tracking_uri}'")
 
 
+def ensure_directories_exist():
+    os.makedirs('models', exist_ok=True)
+    os.makedirs('reports', exist_ok=True)
+
+
 def run():
     try:
         # Start the MLflow run here
@@ -91,11 +96,14 @@ if __name__ == '__main__':
     parser.add_argument('-c', '--config', type=str, required=True, help='Path to the config file')
     args = parser.parse_args()
 
+    # Ensure directories exist
+    ensure_directories_exist()
+
     # Load Gin configuration
     try:
         gin.parse_config_file(args.config)
-        logger = configure_logging()  # Move logging configuration after gin config is loaded
-        configure_mlflow()  # Add this line to configure MLflow
+        logger = configure_logging()
+        configure_mlflow()  # configure MLflow
         logger.info("Gin configuration loaded successfully.")
     except Exception as e:
         print(f"Failed to load Gin configuration: {e}")

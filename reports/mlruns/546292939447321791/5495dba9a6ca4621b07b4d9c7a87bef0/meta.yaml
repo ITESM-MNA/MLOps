@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/arman/PycharmProjects/MLOps/reports/mlruns/546292939447321791/5495dba9a6ca4621b07b4d9c7a87bef0/artifacts
+end_time: 1729319277332
+entry_point_name: ''
+experiment_id: '546292939447321791'
+lifecycle_stage: active
+run_id: 5495dba9a6ca4621b07b4d9c7a87bef0
+run_name: sneaky-crow-531
+run_uuid: 5495dba9a6ca4621b07b4d9c7a87bef0
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1729319004055
+status: 3
+tags: []
+user_id: armi
