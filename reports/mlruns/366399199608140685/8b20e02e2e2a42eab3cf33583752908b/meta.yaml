@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/arman/PycharmProjects/MLOps/reports/mlruns/366399199608140685/8b20e02e2e2a42eab3cf33583752908b/artifacts
+end_time: 1729329784566
+entry_point_name: ''
+experiment_id: '366399199608140685'
+lifecycle_stage: active
+run_id: 8b20e02e2e2a42eab3cf33583752908b
+run_name: stylish-ram-716
+run_uuid: 8b20e02e2e2a42eab3cf33583752908b
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1729329727505
+status: 3
+tags: []
+user_id: armi

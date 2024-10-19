@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/arman/PycharmProjects/MLOps/reports/mlruns/366399199608140685/97ad30c4b7924151ac20af560e72997f/artifacts
+end_time: 1729330073707
+entry_point_name: ''
+experiment_id: '366399199608140685'
+lifecycle_stage: active
+run_id: 97ad30c4b7924151ac20af560e72997f
+run_name: magnificent-carp-15
+run_uuid: 97ad30c4b7924151ac20af560e72997f
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1729330072969
+status: 3
+tags: []
+user_id: armi

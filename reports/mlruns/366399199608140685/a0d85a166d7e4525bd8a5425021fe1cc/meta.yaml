@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/arman/PycharmProjects/MLOps/reports/mlruns/366399199608140685/a0d85a166d7e4525bd8a5425021fe1cc/artifacts
+end_time: 1729329727497
+entry_point_name: ''
+experiment_id: '366399199608140685'
+lifecycle_stage: active
+run_id: a0d85a166d7e4525bd8a5425021fe1cc
+run_name: bouncy-ant-559
+run_uuid: a0d85a166d7e4525bd8a5425021fe1cc
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1729329590728
+status: 3
+tags: []
+user_id: armi

@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/arman/PycharmProjects/MLOps/reports/mlruns/366399199608140685/2c5de2e3ea21480391a1a73140e80640/artifacts
+end_time: 1729330072961
+entry_point_name: ''
+experiment_id: '366399199608140685'
+lifecycle_stage: active
+run_id: 2c5de2e3ea21480391a1a73140e80640
+run_name: exultant-turtle-830
+run_uuid: 2c5de2e3ea21480391a1a73140e80640
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1729329784573
+status: 3
+tags: []
+user_id: armi

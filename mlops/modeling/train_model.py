@@ -3,7 +3,9 @@ import numpy as np
 import os
 import pickle
 import gin
+import importlib
 import mlflow
+import yaml
 
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.calibration import CalibratedClassifierCV
@@ -24,7 +26,9 @@ logging.basicConfig(level=logging.INFO)
 
 
 class TrainModel:
-    def __init__(self, X, y, test_size=0.3, random_state=42):
+    def __init__(self, X, y, config_path: str):
+        with open(config_path, 'r') as file:
+            self.config = yaml.safe_load(file)
         self.X = X
         self.y = y
         self.X_train = None
@@ -33,65 +37,29 @@ class TrainModel:
         self.y_test = None
         self.y_train_df = None
         self.y_test_df = None
-        self.test_size = test_size
-        self.random_state = random_state
+        self.test_size = self.config['training']['test_size']
+        self.random_state = self.config['training']['random_state']
+        self.cv_folds = self.config['training']['cv_folds']
         self.best_thresholds = None
-        self.models = {
-            "Logistic Regression": MultiOutputClassifier(LogisticRegression()),
-            "Random Forest": MultiOutputClassifier(RandomForestClassifier()),
-            "Extra Trees": MultiOutputClassifier(ExtraTreesClassifier()),
-            "AdaBoost": MultiOutputClassifier(AdaBoostClassifier()),
-            "Gradient Boosting": MultiOutputClassifier(GradientBoostingClassifier()),
-            "Decision Tree": MultiOutputClassifier(DecisionTreeClassifier()),
-            "SVM": MultiOutputClassifier(SVC(probability=True))
-        }
+        self.models = self.load_models()
+        self.hyperparameters = self.load_hyperparameters()
 
-        self.hyperparameters = {
-            'Logistic Regression': {
-                'estimator__C': [0.1, 1, 10],
-                'estimator__solver': ['liblinear', 'saga'],
-                'estimator__class_weight': ['balanced'],
-                'estimator__max_iter': [100, 200, 500, 1000]
-            },
-            'Random Forest': {
-                'estimator__n_estimators': [50, 100, 200],
-                'estimator__max_depth': [5, 10, None],
-                'estimator__min_samples_split': [2, 5],
-                'estimator__min_samples_leaf': [1, 2],
-                'estimator__class_weight': ['balanced', 'balanced_subsample']
-            },
-            'Extra Trees': {
-                'estimator__n_estimators': [50, 100, 200],
-                'estimator__max_depth': [5, 10, None],
-                'estimator__min_samples_split': [2, 5],
-                'estimator__min_samples_leaf': [1, 2],
-                'estimator__class_weight': ['balanced', 'balanced_subsample']
-            },
-            'AdaBoost': {
-                'estimator__n_estimators': [50, 100, 200],
-                'estimator__learning_rate': [0.01, 0.1, 1],
-                'estimator__algorithm': ['SAMME', 'SAMME.R']
-            },
-            'Gradient Boosting': {
-                'estimator__n_estimators': [50, 100, 200],
-                'estimator__learning_rate': [0.01, 0.1, 1],
-                'estimator__max_depth': [3, 5, 7],
-                'estimator__min_samples_split': [2, 5],
-                'estimator__min_samples_leaf': [1, 2]
-            },
-            'Decision Tree': {
-                'estimator__max_depth': [5, 10, None],
-                'estimator__min_samples_split': [2, 5],
-                'estimator__min_samples_leaf': [1, 2],
-                'estimator__class_weight': ['balanced']
-            },
-            'SVM': {
-                'estimator__C': [0.1, 1, 10],
-                'estimator__kernel': ['linear', 'rbf'],
-                'estimator__gamma': ['scale', 'auto'],
-                'estimator__class_weight': ['balanced']
+    def load_models(self):
+        models = {}
+        for model_name, model_config in self.config['models'].items():
+            module_name, class_name = model_config['class'].rsplit('.', 1)
+            module = importlib.import_module(module_name)
+            model_class = getattr(module, class_name)
+            models[model_name] = MultiOutputClassifier(model_class())
+        return models
+
+    def load_hyperparameters(self):
+        hyperparameters = {}
+        for model_name, model_config in self.config['models'].items():
+            hyperparameters[model_name] = {
+                f'estimator__{k}': v for k, v in model_config['hyperparameters'].items()
             }
-        }
+        return hyperparameters
 
     def train_test_split(self):
         """
@@ -112,7 +80,7 @@ class TrainModel:
         self.y_train = self.y_train_df.astype(int).to_numpy()
         self.y_test = self.y_test_df.astype(int).to_numpy()
 
-    def tune_model(self, model_name, cv_folds=2):
+    def tune_model(self, model_name):
         """
         Tune hyperparameters for the model using GridSearchCV.
         """
@@ -132,7 +100,7 @@ class TrainModel:
         grid_search = GridSearchCV(
             model,
             param_grid,
-            cv=cv_folds,
+            cv=self.cv_folds,
             scoring=scoring,
             refit='f1_samples',
             return_train_score=True
