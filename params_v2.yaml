@@ -1,0 +1,15 @@
+data:
+  filepath: "D:/Training/ITESM/MLOps_ITESM/wine_ml_pipeline/data/raw/wine_quality_df.csv"
+  processed: data/processed/
+  models: models/
+
+models:
+  logistic_regression:
+    max_iter: 1000
+  random_forest:
+    n_estimators: 100
+    max_depth: 10
+
+mlflow:
+  experiment_name: "Wine Quality Analysis V1"
+  tracking_uri: "http://127.0.0.1:5000"
