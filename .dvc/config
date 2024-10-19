@@ -1,0 +1,4 @@
+[core]
+    remote = storage
+['remote "storage"']
+    url = gs://mlops-dvc-2dc52.appspot.com/dataset
