@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/arman/PycharmProjects/MLOps/reports/mlruns/523987283590534644/6279d120e1e942ab84f90b275a0ef960/artifacts
+end_time: 1729315747848
+entry_point_name: ''
+experiment_id: '523987283590534644'
+lifecycle_stage: active
+run_id: 6279d120e1e942ab84f90b275a0ef960
+run_name: luminous-mouse-656
+run_uuid: 6279d120e1e942ab84f90b275a0ef960
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1729315522716
+status: 3
+tags: []
+user_id: armi

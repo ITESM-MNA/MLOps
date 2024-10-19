@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/arman/PycharmProjects/MLOps/reports/mlruns/523987283590534644/db0bfa9229634de79ae565c584e50a44/artifacts
+end_time: 1729315522709
+entry_point_name: ''
+experiment_id: '523987283590534644'
+lifecycle_stage: active
+run_id: db0bfa9229634de79ae565c584e50a44
+run_name: incongruous-frog-519
+run_uuid: db0bfa9229634de79ae565c584e50a44
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1729315521528
+status: 3
+tags: []
+user_id: armi

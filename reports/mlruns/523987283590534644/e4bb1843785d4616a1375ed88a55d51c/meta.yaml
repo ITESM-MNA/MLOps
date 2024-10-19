@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/arman/PycharmProjects/MLOps/reports/mlruns/523987283590534644/e4bb1843785d4616a1375ed88a55d51c/artifacts
+end_time: 1729316251614
+entry_point_name: ''
+experiment_id: '523987283590534644'
+lifecycle_stage: active
+run_id: e4bb1843785d4616a1375ed88a55d51c
+run_name: placid-elk-159
+run_uuid: e4bb1843785d4616a1375ed88a55d51c
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1729316250244
+status: 3
+tags: []
+user_id: armi

@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/arman/PycharmProjects/MLOps/reports/mlruns/523987283590534644/babfc012e33741c2992daa860296048c/artifacts
+end_time: 1729315951711
+entry_point_name: ''
+experiment_id: '523987283590534644'
+lifecycle_stage: active
+run_id: babfc012e33741c2992daa860296048c
+run_name: victorious-auk-450
+run_uuid: babfc012e33741c2992daa860296048c
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1729315892128
+status: 3
+tags: []
+user_id: armi
