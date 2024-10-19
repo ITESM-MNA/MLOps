@@ -10,8 +10,13 @@ from feature_engineering.data_preprocessing import DataPreprocessing
 from modeling.prediction import Predictor
 from modeling.train_model import TrainModel
 
-patch_sklearn()
-
+# Patch sklearn to allow Intel processor speed up
+try:
+    patch_sklearn()
+except ImportError as e:
+    print(f"Error importing patch_sklearn: {e}")
+except Exception as e:
+    print(f"An unexpected error occurred: {e}")
 
 # Function to configure logging to both console and file
 @gin.configurable
