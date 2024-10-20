@@ -1,0 +1,13 @@
+version: '3'
+services:
+  mlops_service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app  # Mapea el directorio actual al directorio /app del contenedor
+    ports:
+      - "8888:8888"  # Puedes ajustar este puerto si es necesario
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: tail -f /dev/null

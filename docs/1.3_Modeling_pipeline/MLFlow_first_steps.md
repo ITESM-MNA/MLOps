@@ -115,11 +115,11 @@ import mlflow.sklearn
 # Load the Wine dataset
 data = pd.read_csv('wine_quality_df.csv')
 
-# Prepare data
+# Prepare dataset
 X = data.drop(columns=['quality'])  # Features
 y = data['quality']  # Target variable
 
-# Split the data into train and test sets
+# Split the dataset into train and test sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # Set up MLFlow experiment
