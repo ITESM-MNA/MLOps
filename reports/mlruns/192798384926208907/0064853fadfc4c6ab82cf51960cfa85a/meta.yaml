@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/arman/PycharmProjects/MLOps/reports/mlruns/192798384926208907/0064853fadfc4c6ab82cf51960cfa85a/artifacts
+end_time: 1729366217087
+entry_point_name: ''
+experiment_id: '192798384926208907'
+lifecycle_stage: active
+run_id: 0064853fadfc4c6ab82cf51960cfa85a
+run_name: peaceful-fox-775
+run_uuid: 0064853fadfc4c6ab82cf51960cfa85a
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1729366215242
+status: 3
+tags: []
+user_id: armi

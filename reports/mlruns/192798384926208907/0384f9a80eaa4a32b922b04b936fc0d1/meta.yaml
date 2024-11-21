@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/arman/PycharmProjects/MLOps/reports/mlruns/192798384926208907/0384f9a80eaa4a32b922b04b936fc0d1/artifacts
+end_time: 1729365718041
+entry_point_name: ''
+experiment_id: '192798384926208907'
+lifecycle_stage: active
+run_id: 0384f9a80eaa4a32b922b04b936fc0d1
+run_name: awesome-sow-939
+run_uuid: 0384f9a80eaa4a32b922b04b936fc0d1
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1729365493063
+status: 3
+tags: []
+user_id: armi

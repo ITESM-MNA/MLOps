@@ -1,0 +1,26 @@
+# Logs directory
+configure_logging.reports_dir = "reports"
+
+# Models directory
+save_model.models_dir = "models"
+train_and_save_best_model.models_dir = "models"
+
+# Models configuration
+run.config_path = "mlops/config/model_config.yaml"
+
+# MLflow configuration
+configure_mlflow.experiment_name = "Amphibians_Classification"
+configure_mlflow.tracking_uri = "reports/mlruns"
+
+# To run mlflow ui execute:
+# mlflow ui --backend-store-uri reports/mlruns
+
+# DataLoader configurations
+DataLoader.base_dir = '.'
+DataLoader.data_url = 'https://archive.ics.uci.edu/static/public/528/amphibians.zip'
+DataLoader.local_zip_path = 'data/amphibians.zip'
+DataLoader.extract_dir = 'data/extracted'
+DataLoader.extracted_file_name = 'amphibians.csv'
+DataLoader.delimiter = ';'
+DataLoader.encoding = 'utf-8'
+DataLoader.error_bad_lines = True
