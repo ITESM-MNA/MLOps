@@ -1,4 +1,0 @@
-data:
-  filepath: "D:/Training/ITESM/MLOps_ITESM/wine_ml_pipeline/data/raw/wine_quality_df.csv"
-  processed: data/processed/
-  models: models/

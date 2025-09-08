@@ -4,7 +4,19 @@
     <img src="https://img.shields.io/badge/CCDS-Project%20template-328F97?logo=cookiecutter" />
 </a>
 
-A short description of the project.
+This repository will have all the details about the course, each week the instructors will be including the corresponding material, sou you will be able to follow along the details of each topic.
+
+At the begining of the course, you only see the following project structure:
+
+```
+├── LICENSE            <- Open-source license if one is chosen
+├── README.md          <- The top-level README for developers using this project.
+├── docs               <- This is where weekly lecture slides,
+│                         detailed session notes, and complementary resources
+│                         for each topic will be stored.
+```
+
+However, as we move forward with the course, it is expected to have the follosing details.
 
 ## Project Organization
 
@@ -59,3 +71,12 @@ A short description of the project.
 
 --------
 
+> **Note:** 
+> 
+> The `docs/` directory will not only include the default MkDocs structure,  
+> but it will also serve as the main location for weekly lecture slides, detailed notes,  
+> and complementary resources for each session of the course.
+
+> The `notebooks/` directory will contain all Jupyter notebooks used  
+> throughout the course. Each notebook will reflect the step-by-step progress of the  
+> topics when a notebook is needed.
