@@ -71,7 +71,7 @@ However, as we move forward with the course, it is expected to have the follosin
 
 --------
 
-> **Note:** 
+**Note:** 
 - The `docs/` directory will not only include the default MkDocs structure, but it will also serve as the main location for weekly lecture slides, detailed notes, and complementary resources for each session of the course.
 
 - The `notebooks/` directory will contain all Jupyter notebooks used throughout the course. Each notebook will reflect the step-by-step progress of the topics when a notebook is needed.
