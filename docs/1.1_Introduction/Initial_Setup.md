@@ -45,9 +45,37 @@ python3.13 --version
 
 You should see something like `Python 3.13.x`. If it's not installed, make sure to download and install Python 3.13 from [python.org](https://www.python.org/downloads/).
 
+
+> **Note on Python and pip commands:**  
+> Depending on your operating system and how Python is installed, you may see commands like `python` or `python3` (and similarly `pip` or `pip3`).  
+>
+> - On many **Linux/macOS systems**, `python` may still point to Python 2.x, so we use `python3` to explicitly call Python 3.  
+> - On **Windows**, the command `python` usually points directly to the latest installed Python 3 version, but sometimes you can also use the launcher with `py -3.11`.  
+> - For package management, `pip3` ensures you are installing packages for Python 3, while `pip` may default to Python 2 in some environments.  
+>
+> In short:  
+> - Use `python3` and `pip3` when working on macOS/Linux (to be explicit).  
+> - Use `python` or `py -3.11` and `pip` on Windows, unless otherwise specified.
+
+
+
 ### Create and Activate the Virtual Environment
 
-1. **Create the Virtual Environment using Python 3.13:**
+1. **Install virtualenv with pip**
+   
+   First, we need to install virtualenv library, this could be done with the following commands executed in your terminal:
+
+   ```bash
+   pip install virtualenv
+   ```
+
+   or
+
+   ```bash
+   pip3 install virtualenv 
+   ```
+
+2. **Create the Virtual Environment using Python 3.13:**
 
    In the terminal, run:
 
@@ -57,7 +85,7 @@ You should see something like `Python 3.13.x`. If it's not installed, make sure 
 
    Replace `nombre_del_entorno_virtual` with your preferred name for your virtual environment (e.g. `itesm_venv`).
 
-2. **Activate the Virtual Environment:**
+3. **Activate the Virtual Environment:**
 
    - **On Windows:**
 
@@ -79,7 +107,7 @@ You should see something like `Python 3.13.x`. If it's not installed, make sure 
 
    After activating the environment, you should see the environment's name in parentheses before the path in your terminal, indicating that the virtual environment is active.
 
-3. **Deactivate the Virtual Environment:**
+4. **Deactivate the Virtual Environment:**
 
    To exit the virtual environment, simply run:
 
