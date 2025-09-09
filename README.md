@@ -11,9 +11,8 @@ At the begining of the course, you only see the following project structure:
 ```
 ├── LICENSE            <- Open-source license if one is chosen
 ├── README.md          <- The top-level README for developers using this project.
-├── docs               <- This is where weekly lecture slides,
-│                         detailed session notes, and complementary resources
-│                         for each topic will be stored.
+├── docs               <- This is where weekly lecture slides, detailed session notes,
+|                         and complementary resources for each topic will be stored.
 ```
 
 However, as we move forward with the course, it is expected to have the follosing details.
@@ -30,13 +29,13 @@ However, as we move forward with the course, it is expected to have the follosin
 │   ├── processed      <- The final, canonical data sets for modeling.
 │   └── raw            <- The original, immutable data dump.
 │
-├── docs               <- A default mkdocs project; see www.mkdocs.org for details
-│
+├── docs               <- This is where weekly lecture slides, detailed session notes,
+|                         and complementary resources for each topic will be stored.
 ├── models             <- Trained and serialized models, model predictions, or model summaries
 │
 ├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
 │                         the creator's initials, and a short `-` delimited description, e.g.
-│                         `1.0-jqp-initial-data-exploration`.
+│                         `1.0-rv-initial-data-exploration`.
 │
 ├── pyproject.toml     <- Project configuration file with package metadata for 
 │                         mlops and configuration for tools like black
