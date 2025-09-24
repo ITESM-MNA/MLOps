@@ -1,0 +1,10 @@
+artifact_location: file:///Users/rich/Documents/MNA/MLOps/notebooks/1.3 Modeling Pipeline/mlruns/201202107962203700/models/m-0fdd5f36755a43c29d9476da99b4c4aa/artifacts
+creation_timestamp: 1758723209104
+experiment_id: '201202107962203700'
+last_updated_timestamp: 1758723215180
+model_id: m-0fdd5f36755a43c29d9476da99b4c4aa
+model_type: null
+name: iris_model
+source_run_id: 45c7843be72542e59a80d22ae93f2406
+status: 2
+status_message: null

@@ -1,0 +1,18 @@
+aliases: []
+creation_timestamp: 1758723215207
+current_stage: None
+deployment_job_state: null
+description: null
+last_updated_timestamp: 1758723215207
+metrics: null
+model_id: m-0fdd5f36755a43c29d9476da99b4c4aa
+name: tracking-quickstart
+params: null
+run_id: 45c7843be72542e59a80d22ae93f2406
+run_link: null
+source: models:/m-0fdd5f36755a43c29d9476da99b4c4aa
+status: READY
+status_message: null
+storage_location: file:///Users/rich/Documents/MNA/MLOps/notebooks/1.3 Modeling Pipeline/mlruns/201202107962203700/models/m-0fdd5f36755a43c29d9476da99b4c4aa/artifacts
+user_id: null
+version: 1
