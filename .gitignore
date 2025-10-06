@@ -2,4 +2,8 @@
 .DS_Store
 
 # Virtual Environments
-venv/
+venv/.mlflow/
+__pycache__/
+*.pyc
+.env
+.DS_Store

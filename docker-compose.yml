@@ -1,0 +1,24 @@
+services:
+  mlops-app:
+    image: python:3.13-slim
+    working_dir: /work
+    volumes:
+      - ./:/work
+    command: bash -lc "pip install --upgrade pip && pip install -r requirements.txt && tail -f /dev/null"
+
+  mlflow:
+    image: python:3.13-slim
+    working_dir: /work
+    volumes:
+      - ./.mlflow:/work/.mlflow
+    environment:
+      MLFLOW_TRACKING_URI: http://0.0.0.0:9001
+    ports:
+      - "9001:9001"
+    command: bash -lc "\
+      pip install --upgrade pip && \
+      pip install mlflow && \
+      mlflow server \
+        --host 0.0.0.0 --port 9001 \
+        --backend-store-uri sqlite:///./.mlflow/mlflow.db \
+        --default-artifact-root file:///work/.mlflow/artifacts"
