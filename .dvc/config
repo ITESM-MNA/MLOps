@@ -1,0 +1,4 @@
+[core]
+    remote = s3_storage
+['remote "s3_storage"']
+    url = s3://mlops-team42-dvc/insurance_bkp

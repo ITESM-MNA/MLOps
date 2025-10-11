@@ -1,0 +1,87 @@
+Column,Name,NewName,Description,Domain
+1,MOSTYPE,CSubType,Customer Subtype,see L0
+2,MAANTHUI,NumHouse,Number,of houses 1 10
+3,MGEMOMV,AvgSzHouse,Avg size household,1 6
+4,MGEMLEEF,AvgAge,Avg age,see L1
+5,MOSHOOFD,CMainType,Customer main type,see L2
+6,MGODRK,DemCatholic,Roman catholic,see L3
+7,MGODPR,DemProtestant,Protestant ...,
+8,MGODOV,DemOthReligion,Other religion,
+9,MGODGE,DemNoReligion,No religion,
+10,MRELGE,DemMarried,Married,
+11,MRELSA,DemCohabitation,Living together,
+12,MRELOV,DemOtherRelation,Other relation,
+13,MFALLEEN,DemSingles,Singles,
+14,MFGEKIND,DemNoChild,Household without children,
+15,MFWEKIND,DemWithChild,Household with children,
+16,MOPLHOOG,DemHiLeEdu,High level education,
+17,MOPLMIDD,DemMiLeEdu,Medium level education,
+18,MOPLLAAG,DemLoLeEdu,Lower level education,
+19,MBERHOOG,DemHiStatus,High status,
+20,MBERZELF,DemEntrepreneur,Entrepreneur,
+21,MBERBOER,DemFarmer,,Farmer
+22,MBERMIDD,DemMidManager,Middle management,
+23,MBERARBG,DemSkilledLab,Skilled labourers,
+24,MBERARBO,DemUnskilledLab,Unskilled labourers,
+25,MSKA,DemSocClassA,Social class A,
+26,MSKB1,DemSocClassB1,Social class,B1
+27,MSKB2,DemSocClassB2,Social class,B2
+28,MSKC,DemSocClassC,Social class C,
+29,MSKD,DemSocClassD,Social class D,
+30,MHHUUR,DemRenter,Rented house,
+31,MHKOOP,DemHomeOwner,Home owners,
+32,MAUT1,Dem1Car,,1 car
+33,MAUT2,Dem2Car,,2 cars
+34,MAUT0,Dem0Car,No car,
+35,MZFONDS,DemPubHthInsur,National Health Service,
+36,MZPART,DemPrivHthInsur,Private health insurance,
+37,MINKM30,DemLowestInc,Income <,30.000
+38,MINK3045,DemLowInc,Income,30-45.000
+39,MINK4575,DemMidInc,Income,45-75.000
+40,MINK7512,DemHighInc,Income,75-122.000
+41,MINK123M,DemHighestInc,Income,>123.000
+42,MINKGEM,DemAvgIncome,Average income,
+43,MKOOPKLA,DemPurchPowerC,Purchasing power class,
+44,PWAPART,ContrPrivIns,Contribution private third party insurance,see L4
+45,PWABEDR,ContrPrivInsFirm,Contribution third party insurance,(firms) ...
+46,PWALAND,ContrPrivInsAgr,Contribution third party insurane (agriculture),
+47,PPERSAUT,ContrCarPol,Contribution car policies,
+48,PBESAUT,ContrDeVanPol,Contribution delivery van policies,
+49,PMOTSCO,ContrMotPol,Contribution motorcycle/scooter policies,
+50,PVRAAUT,ContrLorPol,Contribution lorry policies,
+51,PAANHANG,ContrTrailPol,Contribution trailer policies,
+52,PTRACTOR,ContrTractPol,Contribution tractor policies,
+53,PWERKT,ContrAgrMacPol,Contribution agricultural machines policies,
+54,PBROM,ContrMopPol,Contribution moped policies,
+55,PLEVEN,ContrLifePol,Contribution,life insurances
+56,PPERSONG,ContrPrivAccPol,Contribution private accident insurance policies,
+57,PGEZONG,ContrFamAccPol,Contribution,family accidents insurance policies
+58,PWAOREG,ContrDisPol,Contribution disability insurance policies,
+59,PBRAND,ContrFirePol,Contribution,fire policies
+60,PZEILPL,ContrSurfPol,Contribution,surfboard policies
+61,PPLEZIER,ContrBoatPol,Contribution boat policies,
+62,PFIETS,ContrBicPol,Contribution bicycle policies,
+63,PINBOED,ContrProPol,Contribution property insurance policies,
+64,PBYSTAND,ContrSSPol,Contribution social security insurance policies,
+65,AWAPART,NumPrivIns,Number,of private third party insurance 1 - 12
+66,AWABEDR,NumPrivInsFirm,Number,of third party insurance (firms) ...
+67,AWALAND,NumPrivInsAgr,Number,of third party insurane (agriculture)
+68,APERSAUT,NumCarPol,Number,of car policies
+69,ABESAUT,NumDeVanPol,Number,of delivery van policies
+70,AMOTSCO,NumMotPol,Number,of motorcycle/scooter policies
+71,AVRAAUT,NumLorPol,Number,of lorry policies
+72,AAANHANG,NumTrailPol,Number,of trailer policies
+73,ATRACTOR,NumTractPol,Number,of tractor policies
+74,AWERKT,NumAgrMacPol,Number,of agricultural machines policies
+75,ABROM,NumMopPol,Number,of moped policies
+76,ALEVEN,NumLifePol,Number,of life insurances
+77,APERSONG,NumPrivAccPol,Number,of private accident insurance policies
+78,AGEZONG,NumFamAccPol,Number,of family accidents insurance policies
+79,AWAOREG,NumDisPol,Number,of disability insurance policies
+80,ABRAND,NumFirePol,Number,of fire policies
+81,AZEILPL,NumSurfPol,Number,of surfboard policies
+82,APLEZIER,NumBoatPol,Number,of boat policies
+83,AFIETS,NumBicPol,Number,of bicycle policies
+84,AINBOED,NumProPol,Number,of property insurance policies
+85,ABYSTAND,NumSSPol,Number,of social security insurance policies
+86,CARAVAN,MoHoPol,Number,of mobile home policies 0 - 1
