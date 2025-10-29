@@ -8,6 +8,27 @@ from sklearn.model_selection import train_test_split
 REPORTS_DIR = os.path.join(os.path.dirname(__file__), '../../reports/')
 os.makedirs(REPORTS_DIR, exist_ok=True)
 
+class DataExplorer:
+    @staticmethod
+    def explore(data):
+        print(data.head().T)
+        print(data.describe())
+        print(data.info())
+
+    @staticmethod
+    def plot_histograms(data):
+        import matplotlib.pyplot as plt
+        data.hist(bins=15, figsize=(15, 10))
+        plt.show()
+
+    @staticmethod
+    def plot_correlations(data):
+        import seaborn as sns
+        import matplotlib.pyplot as plt
+        plt.figure(figsize=(12, 8))
+        sns.heatmap(data.corr(), annot=True, fmt=".2f", cmap='coolwarm')
+        plt.show()
+
 def load_and_describe_data(input_path, column_names):
     df = pd.read_csv(input_path, header=None)
     df.columns = column_names

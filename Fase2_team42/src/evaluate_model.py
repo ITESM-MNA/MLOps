@@ -7,6 +7,36 @@ from sklearn.metrics import (
     roc_auc_score, average_precision_score, f1_score, precision_score, recall_score, confusion_matrix
 )
 
+class ModelEvaluator:
+    def __init__(self, models, df_test, y_test):
+        self.models = models
+        self.df_test = df_test
+        self.y_test = y_test
+        self.results = {}
+
+    def evaluate(self):
+        X_test = self.df_test.drop(columns=[self.y_test.name]) if hasattr(self.y_test, 'name') else self.df_test
+        y_test = self.y_test
+        for name, gs in self.models.items():
+            proba = gs.best_estimator_.predict_proba(X_test)[:, 1]
+            self.results[name] = {
+                "roc_auc": roc_auc_score(y_test, proba),
+                "pr_auc": average_precision_score(y_test, proba),
+                "f1": self._best_f1(y_test, proba)
+            }
+        return self.results
+
+    @staticmethod
+    def _best_f1(y_true, y_score, steps=101):
+        thrs = np.linspace(0.01, 0.99, steps)
+        best_f1 = 0
+        for t in thrs:
+            y_pred = (y_score >= t).astype(int)
+            f1 = f1_score(y_true, y_pred, zero_division=0)
+            if f1 > best_f1:
+                best_f1 = f1
+        return best_f1
+
 def summary_basic(name, y_true, y_score):
     return pd.Series({
         "Modelo":  name,
