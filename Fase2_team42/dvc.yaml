@@ -1,0 +1,16 @@
+stages:
+  train:
+    cmd: python src/pipelines/train_pipeline.py
+    deps:
+      - src/pipelines/train_pipeline.py
+      - src/data/load_data.py
+      - src/features/build_features.py
+      - src/models/train_model.py
+      - src/models/evaluate_model.py
+      - data/ml_data/insurance_train.csv
+      - data/ml_data/insurance_test.csv
+    outs:
+      - models/final_model_GradBoost.joblib
+      - data/clientes_top10pct.csv
+      - data/clientes_top5pct.csv
+      - data/clientes_scored_full.csv

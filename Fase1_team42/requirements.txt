@@ -1,0 +1,14 @@
+numpy
+pandas
+scipy
+matplotlib
+seaborn
+scikit-learn
+dvc
+cookiecutter-data-science
+pytest
+fastapi
+mlflow
+evidently
+sdv
+deepchecks

@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  mlflow:
+    image: python:3.9-slim
+    container_name: mlflow_server_team42
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./mlruns:/mlflow/mlruns
+      - ./artifacts:/mlflow/artifacts
+      - ./requirements.txt:/tmp/requirements.txt
+    working_dir: /mlflow
+    command: >
+      bash -c "
+        pip install --no-cache-dir -r /tmp/requirements.txt &&
+        mlflow server 
+        --backend-store-uri file:///mlflow/mlruns 
+        --default-artifact-root file:///mlflow/artifacts 
+        --host 0.0.0.0 
+        --port 5000
+      "
+    environment:
+      - MLFLOW_TRACKING_URI=http://localhost:5000
+    networks:
+      - mlops_network
+
+  postgres:
+    image: postgres:13
+    container_name: mlflow_postgres_team42
+    environment:
+      POSTGRES_DB: mlflow
+      POSTGRES_USER: mlflow
+      POSTGRES_PASSWORD: mlflow123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - mlops_network
+
+  jupyter:
+    image: jupyter/scipy-notebook:latest
+    container_name: jupyter_team42
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./notebooks:/home/jovyan/work/notebooks
+      - ./data:/home/jovyan/work/data
+      - ./src:/home/jovyan/work/src
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    networks:
+      - mlops_network
+
+volumes:
+  postgres_data:
+
+networks:
+  mlops_network:
+    driver: bridge
