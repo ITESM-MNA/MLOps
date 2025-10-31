@@ -15,7 +15,7 @@ At the begining of the course, you only see the following project structure:
 |                         and complementary resources for each topic will be stored.
 ```
 
-However, as we move forward with the course, it is expected to have the follosing details.
+However, as we move forward with the course, it is expected to have the following details.
 
 ## Project Organization
 
