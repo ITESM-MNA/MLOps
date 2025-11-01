@@ -8,7 +8,7 @@ import pandas as pd
 def main():
     import os
     # 1. EDA y preprocesamiento
-    from src.data.eda import load_and_describe_data, plot_target_distribution, save_top_correlations, plot_top_features, split_and_save_train_test
+    from src.eda import load_and_describe_data, plot_target_distribution, save_top_correlations, plot_top_features, split_and_save_train_test
     # Definir nombres de columnas (ajustar según el diccionario real)
     column_names = [
         "CSubType", "NumHouse", "AvgSzHouse", "AvgAge", "CMainType",
@@ -44,7 +44,7 @@ def main():
     print("EDA y preprocesamiento completados.")
 
     # 2. Modelado y evaluación
-    from src.models.ml_pipeline import load_train_test, get_features, train_and_evaluate
+    from src.ml_pipeline import load_train_test, get_features, train_and_evaluate
     data_dir = os.path.join(os.path.dirname(__file__), 'data', 'ml_data')
     df_train, df_test = load_train_test(data_dir, 'MoHoPol')
     df_train_fx, df_test_fx, FEATURES = get_features(df_train, df_test)
