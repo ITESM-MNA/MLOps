@@ -1,0 +1,14 @@
+artifact_uri: file:///C:/Users/mizlop/OneDrive%20-%20SAS/Documents/SAS_git/MLOps/Fase2_team42/mlruns/352627927479872806/619d8a1896ec44ccbac39da75de92248/artifacts
+end_time: 1763075891584
+entry_point_name: ''
+experiment_id: '352627927479872806'
+lifecycle_stage: active
+run_id: 619d8a1896ec44ccbac39da75de92248
+run_name: gaudy-crab-371
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1763075852569
+status: 3
+tags: []
+user_id: mizlop

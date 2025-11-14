@@ -1,0 +1,14 @@
+artifact_uri: file:///C:/Users/mizlop/OneDrive%20-%20SAS/Documents/SAS_git/MLOps/Fase2_team42/mlruns/352627927479872806/d62b72faa1a14648bf88fc5cee5e8809/artifacts
+end_time: 1761722125442
+entry_point_name: ''
+experiment_id: '352627927479872806'
+lifecycle_stage: active
+run_id: d62b72faa1a14648bf88fc5cee5e8809
+run_name: inquisitive-stag-355
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1761722098694
+status: 3
+tags: []
+user_id: mizlop
