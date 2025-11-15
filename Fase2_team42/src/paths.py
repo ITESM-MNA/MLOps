@@ -8,3 +8,4 @@ DATA_DIR = PROJECT_ROOT / "data"
 MODELS_DIR = PROJECT_ROOT / "models"
 NOTEBOOKS_DIR = PROJECT_ROOT / "notebooks"
 REPORTS_DIR = PROJECT_ROOT / "reports"
+    

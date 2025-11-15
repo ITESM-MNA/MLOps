@@ -12,3 +12,4 @@ mlflow
 evidently
 sdv
 deepchecks
+fastapi

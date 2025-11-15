@@ -1,40 +1,53 @@
-from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import List
+import pandas as pd
 import joblib
+from fastapi import FastAPI, HTTPException
 import os
 
-# Initialize FastAPI app
-app = FastAPI()
+app = FastAPI(
+    title="Team42 ML Model API",
+    description="API para realizar predicciones usando el modelo final de Gradient Boosting",
+    version="1.0.0"
+)
 
-# Define input schema using Pydantic
-class PredictionInput(BaseModel):
-    features: List[float]
-
-# Define output schema using Pydantic
-class PredictionOutput(BaseModel):
-    prediction: int
-    probability: float
-
-# Load the model artifact
-MODEL_PATH = "C:\\Users\\mizlop\\OneDrive - SAS\\Documents\\SAS_git\\MLOps\\FaseFinal_team42\\models\\final_model_GradBoost.joblib"
+MODEL_PATH = "FaseFinal_team42/models/final_model_GradBoost.joblib"
 if not os.path.exists(MODEL_PATH):
-    raise FileNotFoundError(f"Model artifact not found at {MODEL_PATH}")
+    raise FileNotFoundError(f"Model artifact not found at: {MODEL_PATH}")
+
 model = joblib.load(MODEL_PATH)
 
-@app.post("/predict", response_model=PredictionOutput)
-def predict(input_data: PredictionInput):
-    """Endpoint to make predictions using the loaded model."""
+#Mismo orden que en el modelo
+class ModelInput(BaseModel):
+    ContrCarPol: float
+    NumCarPol: float
+    ContrFirePol: float
+    DemAvgIncome: float
+    DemMidInc: float
+    DemLoLeEdu: float
+    DemHiLeEdu: float
+    DemLowestInc: float
+    ContrPrivIns: float
+    CMainType: float
+    CAR_CROSS: float
+    FIRE_CROSS: float  
+
+@app.get("/")
+def root():
+    return {"message": "API funcionando. Ir a /docs para probar /predict"}
+
+@app.post("/predict")
+def predict(input_data: ModelInput):
     try:
-        # Ensure the input features are valid
-        if len(input_data.features) != model.n_features_in_:
-            raise HTTPException(status_code=400, detail=f"Expected {model.n_features_in_} features, got {len(input_data.features)}")
+        # Pydantic -> dict -> DataFrame con las columnas en el orden definido arriba
+        df = pd.DataFrame([input_data.dict()])
 
-        # Make prediction
-        prediction = model.predict([input_data.features])[0]
-        probability = model.predict_proba([input_data.features])[0].max()
+        # Predicción
+        pred = model.predict(df)[0]
+        proba = model.predict_proba(df)[0][1]
 
-        return PredictionOutput(prediction=int(prediction), probability=float(probability))
-
+        return {
+            "prediction": int(pred),
+            "probability": float(proba)
+        }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"An error occurred during prediction: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
