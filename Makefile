@@ -47,11 +47,10 @@ format:
 ## Set up Python interpreter environment
 .PHONY: create_environment
 create_environment:
-	
-	conda create --name $(PROJECT_NAME) python=$(PYTHON_VERSION) -y
-	
-	@echo ">>> conda env created. Activate with:\nconda activate $(PROJECT_NAME)"
-	
+	$(PYTHON_INTERPRETER) -m venv .venv
+	@echo ">>> New virtual environment created in .venv. Activate with:"
+	@echo "    source .venv/bin/activate      (Linux/macOS)"
+	@echo "    .venv\\Scripts\\activate         (Windows)"
 
 
 
