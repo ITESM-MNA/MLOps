@@ -1,5 +1,19 @@
 # Data
-/data/
+data/external/*
+!data/external/.gitkeep
+!data/external/*.dvc
+
+data/interim/*
+!data/interim/.gitkeep
+!data/interim/*.dvc
+
+data/processed/*
+!data/processed/.gitkeep
+!data/processed/*.dvc
+
+data/raw/*
+!data/raw/.gitkeep
+!data/raw/*.dvc
 
 # Mac OS-specific storage files
 .DS_Store
