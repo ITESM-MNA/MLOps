@@ -11,6 +11,8 @@ notebook
 numpy
 pandas
 pip
+pyarrow
+pytest
 python-dotenv
 scikit-learn
 scipy

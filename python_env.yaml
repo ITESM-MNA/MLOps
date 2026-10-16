@@ -1,0 +1,13 @@
+# Environment for `mlflow run` WITHOUT `--env-manager local` (MLflow builds a virtualenv from it).
+# With `--env-manager local` (the course default) the active .venv / requirements.txt is used instead.
+python: "3.13"
+build_dependencies:
+  - pip
+dependencies:
+  - mlflow>=3.0,<4
+  - scikit-learn==1.5.2
+  - pandas==2.2.3
+  - pyarrow==18.1.0
+  - matplotlib==3.9.2
+  - loguru
+  - python-dotenv

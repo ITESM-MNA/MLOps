@@ -1,29 +1,35 @@
-from pathlib import Path
+"""Figures for reports/figures.
 
-from loguru import logger
-from tqdm import tqdm
-import typer
+python -m mlops.plots
+"""
 
-from mlops.config import FIGURES_DIR, PROCESSED_DATA_DIR
+import matplotlib
 
-app = typer.Typer()
+matplotlib.use("Agg")
+
+import matplotlib.pyplot as plt  # noqa: E402
+import pandas as pd  # noqa: E402
+
+from mlops.config import FIGURES_DIR, TARGET, TRAIN_FILE  # noqa: E402
 
 
-@app.command()
-def main(
-    # ---- REPLACE DEFAULT PATHS AS APPROPRIATE ----
-    input_path: Path = PROCESSED_DATA_DIR / "dataset.csv",
-    output_path: Path = FIGURES_DIR / "plot.png",
-    # -----------------------------------------
-):
-    # ---- REPLACE THIS WITH YOUR OWN CODE ----
-    logger.info("Generating plot from data...")
-    for i in tqdm(range(10), total=10):
-        if i == 5:
-            logger.info("Something happened for iteration 5.")
-    logger.success("Plot generation complete.")
-    # -----------------------------------------
+def plot_alcohol_by_quality(df: pd.DataFrame):
+    fig, ax = plt.subplots(figsize=(6, 4))
+    df.boxplot(column="alcohol", by=TARGET, ax=ax)
+    ax.set_title("Alcohol by quality")
+    fig.suptitle("")
+    ax.set_xlabel("quality")
+    ax.set_ylabel("alcohol (%)")
+    return fig
+
+
+def main() -> None:
+    df = pd.read_csv(TRAIN_FILE)
+    FIGURES_DIR.mkdir(parents=True, exist_ok=True)
+    out_path = FIGURES_DIR / "alcohol_by_quality.png"
+    plot_alcohol_by_quality(df).savefig(out_path, bbox_inches="tight")
+    print(f"Saved figure: reports/figures/{out_path.name}")
 
 
 if __name__ == "__main__":
-    app()
+    main()

@@ -1,29 +1,50 @@
-from pathlib import Path
+"""Step 2 (features): data/interim -> data/processed.
 
-from loguru import logger
-from tqdm import tqdm
-import typer
+python -m mlops.features --run-id <run_id of the load step>
+"""
 
-from mlops.config import PROCESSED_DATA_DIR
+import argparse
 
-app = typer.Typer()
+import mlflow
+import pandas as pd
+
+from mlops.config import FEATURES_FILE, INTERIM_FILE
+from mlops.tracking import artifact_source, log_dataset, start_run
 
 
-@app.command()
-def main(
-    # ---- REPLACE DEFAULT PATHS AS APPROPRIATE ----
-    input_path: Path = PROCESSED_DATA_DIR / "dataset.csv",
-    output_path: Path = PROCESSED_DATA_DIR / "features.csv",
-    # -----------------------------------------
-):
-    # ---- REPLACE THIS WITH YOUR OWN CODE ----
-    logger.info("Generating features from dataset...")
-    for i in tqdm(range(10), total=10):
-        if i == 5:
-            logger.info("Something happened for iteration 5.")
-    logger.success("Features generation complete.")
-    # -----------------------------------------
+def build_features(df: pd.DataFrame) -> pd.DataFrame:
+    out = df.copy()
+    out["total_acidity"] = out["fixed_acidity"] + out["volatile_acidity"]
+    return out
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--run-id", required=True, help="run_id of the load step")
+    args = parser.parse_args()
+
+    # Download the previous step's output from MLflow Tracking.
+    interim_path = mlflow.artifacts.download_artifacts(
+        run_id=args.run_id, artifact_path=INTERIM_FILE.name
+    )
+    interim_df = pd.read_csv(interim_path)
+    df = build_features(interim_df)
+
+    FEATURES_FILE.parent.mkdir(parents=True, exist_ok=True)
+    df.to_parquet(FEATURES_FILE, index=False)
+
+    with start_run():
+        log_dataset(
+            interim_df,
+            artifact_source(args.run_id, INTERIM_FILE.name),
+            name="wine_quality_interim",
+            context="interim",
+        )
+        mlflow.log_param("load_run_id", args.run_id)
+        mlflow.log_artifact(str(FEATURES_FILE))
+
+    print(f"Saved {FEATURES_FILE.name}: {df.shape}")
 
 
 if __name__ == "__main__":
-    app()
+    main()

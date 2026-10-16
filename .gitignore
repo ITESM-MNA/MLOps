@@ -5,6 +5,13 @@ data/external/*
 # data/raw, data/interim and data/processed are committed: the course datasets are very small.
 # Their versions are also tracked with MLflow (see data/README.md).
 
+# Files regenerated on every MLflow project run
+data/interim/wine_quality_interim.csv
+data/processed/wine_quality_features.parquet
+reports/predictions.csv
+reports/figures/alcohol_by_quality.png
+reports/figures/preds.png
+
 # MLflow local tracking store and artifacts
 mlruns/
 mlartifacts/

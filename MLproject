@@ -1,0 +1,41 @@
+name: wine-quality
+
+python_env: python_env.yaml
+
+entry_points:
+  main:
+    parameters:
+      data: {type: path, default: data/processed/wine_quality_train.csv}
+      alpha: {type: float, default: 0.5}
+    command: >-
+      python -m mlops.modeling.train
+      --data {data} --alpha {alpha}
+
+  load:
+    parameters:
+      data: {type: path, default: data/processed/wine_quality_cleaned_dropna.csv}
+    command: "python -m mlops.dataset --data {data}"
+
+  features:
+    parameters:
+      run_id: {type: string}
+    command: "python -m mlops.features --run-id {run_id}"
+
+  train:
+    parameters:
+      run_id: {type: string}
+      alpha: {type: float, default: 0.5}
+    command: >-
+      python -m mlops.modeling.train
+      --run-id {run_id} --alpha {alpha}
+
+  predict:
+    parameters:
+      model_uri: {type: string}
+      data: {type: path, default: data/processed/wine_quality_test.csv}
+    command: >-
+      python -m mlops.modeling.predict
+      --model-uri {model_uri} --data {data}
+
+  workflow:
+    command: "python -m mlops.workflow"

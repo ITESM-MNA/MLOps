@@ -3,8 +3,10 @@
 #################################################################################
 
 PROJECT_NAME = mlops
-PYTHON_VERSION = 3.10
+PYTHON_VERSION = 3.13
 PYTHON_INTERPRETER = python
+EXPERIMENT ?= wine-quality
+ALPHA ?= 0.5
 
 #################################################################################
 # COMMANDS                                                                      #
@@ -59,10 +61,30 @@ create_environment:
 #################################################################################
 
 
-## Make dataset
+## Build the train/test split from the cleaned dataset (notebook 1.4)
 .PHONY: data
-data: requirements
-	$(PYTHON_INTERPRETER) mlops/dataset.py
+data:
+	$(PYTHON_INTERPRETER) scripts/prepare_data.py
+
+## Train the model without MLflow Projects (logs a run to mlflow.db)
+.PHONY: train
+train:
+	$(PYTHON_INTERPRETER) -m mlops.modeling.train
+
+## Run the MLflow project's main entry point (ALPHA=0.5 by default)
+.PHONY: mlflow-run
+mlflow-run:
+	mlflow run . --env-manager local --experiment-name $(EXPERIMENT) -P alpha=$(ALPHA)
+
+## Run the multi-step MLflow workflow: load -> features -> train
+.PHONY: workflow
+workflow:
+	mlflow run . -e workflow --env-manager local --experiment-name $(EXPERIMENT)
+
+## Run the unit tests
+.PHONY: test
+test:
+	$(PYTHON_INTERPRETER) -m pytest -q
 
 
 #################################################################################

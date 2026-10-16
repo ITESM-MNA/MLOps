@@ -32,6 +32,20 @@ MODELS_DIR = PROJ_ROOT / "models"
 REPORTS_DIR = PROJ_ROOT / "reports"
 FIGURES_DIR = REPORTS_DIR / "figures"
 
+# Wine-quality MLflow project (MLproject entry points and notebooks 2.x).
+# It starts from the cleaned white-wine dataset produced by notebook 1.4.
+TARGET = "quality"
+RANDOM_STATE = 42
+SOURCE_DATA_FILE = PROCESSED_DATA_DIR / "wine_quality_cleaned_dropna.csv"
+INTERIM_FILE = INTERIM_DATA_DIR / "wine_quality_interim.csv"
+FEATURES_FILE = PROCESSED_DATA_DIR / "wine_quality_features.parquet"
+TRAIN_FILE = PROCESSED_DATA_DIR / "wine_quality_train.csv"
+TEST_FILE = PROCESSED_DATA_DIR / "wine_quality_test.csv"
+PREDICTIONS_FILE = REPORTS_DIR / "predictions.csv"
+
+# Experiment used by the MLflow project (override with MLFLOW_EXPERIMENT_NAME in .env)
+MLFLOW_EXPERIMENT_NAME = os.getenv("MLFLOW_EXPERIMENT_NAME", "wine-quality")
+
 # If tqdm is installed, configure loguru with tqdm.write
 # https://github.com/Delgan/loguru/issues/135
 try:
