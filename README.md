@@ -22,11 +22,15 @@ python --version      # 3.10 or newer (the course was tested with 3.13)
 
 ### 2. Clone the repository
 
+Open a terminal in the folder where you keep your projects (any folder works) and run:
+
 ```powershell
-cd C:\Users\<you>\Documents
 git clone https://github.com/ITESM-MNA/MLOps-2021.git
 cd MLOps-2021
 ```
+
+From here on, every command runs from this repository folder (`MLOps-2021`, the project root) and
+all paths are relative to it.
 
 ### 3. Create and activate the virtual environment (inside the repo folder)
 
@@ -59,7 +63,7 @@ All experiments are tracked on a local MLflow server. Open a **second terminal**
 now on), go to the repo folder, activate `.venv` and leave the server running while you work:
 
 ```powershell
-cd C:\Users\<you>\Documents\MLOps-2021
+cd MLOps-2021                        # the repository folder, from where you cloned it
 .venv\Scripts\Activate.ps1          # macOS/Linux: source .venv/bin/activate
 mlflow server --host 127.0.0.1 --port 5000
 ```
@@ -112,7 +116,7 @@ experiment.
 Terminal 1 (MLflow server, leave it running):
 
 ```powershell
-cd C:\Users\<you>\Documents\MLOps-2021
+cd MLOps-2021                        # the repository folder, from where you cloned it
 .venv\Scripts\Activate.ps1          # macOS/Linux: source .venv/bin/activate
 mlflow server --host 127.0.0.1 --port 5000
 ```
@@ -120,7 +124,7 @@ mlflow server --host 127.0.0.1 --port 5000
 Terminal 2 (your work):
 
 ```powershell
-cd C:\Users\<you>\Documents\MLOps-2021
+cd MLOps-2021                        # the repository folder, from where you cloned it
 .venv\Scripts\Activate.ps1          # macOS/Linux: source .venv/bin/activate
 $env:MLFLOW_TRACKING_URI = "http://127.0.0.1:5000"     # macOS/Linux: export MLFLOW_TRACKING_URI=http://127.0.0.1:5000
 git pull                             # get the latest course material
