@@ -6,6 +6,96 @@
 
 A short description of the project.
 
+## Getting started
+
+Clone the repository **first**, then create the virtual environment **inside** the cloned folder:
+`requirements.txt` installs this project's own `mlops` package (`-e .`), so the code must already be
+there, and `.venv/` is ignored by git. Commands below are for Windows PowerShell; the macOS/Linux
+equivalent is shown where it differs.
+
+### 1. Check the prerequisites (once per computer)
+
+```powershell
+git --version
+python --version      # 3.10 or newer (the course was tested with 3.13)
+```
+
+### 2. Clone the repository
+
+```powershell
+cd C:\Users\<you>\Documents
+git clone https://github.com/ITESM-MNA/MLOps-2021.git
+cd MLOps-2021
+```
+
+### 3. Create and activate the virtual environment (inside the repo folder)
+
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1          # macOS/Linux: source .venv/bin/activate
+```
+
+The prompt now starts with `(.venv)`. If PowerShell blocks the script, run once:
+`Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`, then activate again.
+
+### 4. Install the dependencies
+
+```powershell
+python -m pip install -U pip
+pip install -r requirements.txt
+```
+
+This also installs the `mlops` package in editable mode, so code changes apply immediately.
+
+### 5. Check the setup
+
+```powershell
+python -m pytest -q        # expected: 3 passed
+```
+
+### 6. Run the notebooks (1.0 → 2.1)
+
+```powershell
+jupyter lab
+```
+
+Open `notebooks/` and run them in order (see *Course notebooks* below). In VS Code, select the
+`.venv` interpreter as the notebook kernel instead.
+
+### 7. Run the MLflow project (from the repo root, with `.venv` active)
+
+```powershell
+python scripts/prepare_data.py
+mlflow run . --env-manager local --experiment-name wine-quality
+mlflow run . -P alpha=0.01 --env-manager local --experiment-name wine-quality
+mlflow run . -e workflow --env-manager local --experiment-name wine-quality
+```
+
+### 8. See the results
+
+```powershell
+mlflow ui --backend-store-uri sqlite:///mlflow.db
+```
+
+Open http://127.0.0.1:5000, select runs in the `wine-quality` experiment and click **Compare**.
+The cleaning run from notebook 1.4 is in the `wine-quality-data-cleaning` experiment.
+
+### Every new session
+
+```powershell
+cd C:\Users\<you>\Documents\MLOps-2021
+.venv\Scripts\Activate.ps1          # macOS/Linux: source .venv/bin/activate
+git pull                             # get the latest course material
+```
+
+If `git pull` changes `requirements.txt`, run `pip install -r requirements.txt` again.
+
+**Tips**
+
+- The `make ...` shortcuts in this README need `make`, which Windows does not include by
+  default; the commands above do the same without it.
+- Always run MLflow commands from the repo root, so every run is stored in the same `mlflow.db`.
+
 ## Project Organization
 
 ```
@@ -85,13 +175,7 @@ and read/write data only through the paths in `mlops/config.py`. Run them in ord
 | `2.0-grh-messy-notebook` | `data/processed/wine_quality_cleaned_dropna.csv` | `reports/figures/preds.png` (the "before refactoring" example) |
 | `2.1-grh-initial-eda` | `data/processed/wine_quality_cleaned_dropna.csv` (through the `mlops` package) | – |
 
-Setup (plain Python virtual environment):
-
-```bash
-make create_environment          # python -m venv .venv
-# activate it: source .venv/bin/activate (Linux/macOS) or .venv\Scripts\activate (Windows)
-pip install -r requirements.txt  # also installs the `mlops` package in editable mode
-```
+See *Getting started* above for the environment setup.
 
 ## MLflow Projects: experiment and model tracking
 
