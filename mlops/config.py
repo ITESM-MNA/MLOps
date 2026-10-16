@@ -16,6 +16,10 @@ INTERIM_DATA_DIR = DATA_DIR / "interim"
 PROCESSED_DATA_DIR = DATA_DIR / "processed"
 EXTERNAL_DATA_DIR = DATA_DIR / "external"
 
+# Dataset storage: datasets in data/processed are versioned with MLflow dataset tracking
+# (https://mlflow.org/docs/latest/ml/dataset/). No DVC and no cloud bucket are used.
+DATASET_STORAGE_DIR = PROCESSED_DATA_DIR
+
 MODELS_DIR = PROJ_ROOT / "models"
 
 REPORTS_DIR = PROJ_ROOT / "reports"

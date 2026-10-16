@@ -15,7 +15,7 @@ A short description of the project.
 ├── data
 │   ├── external       <- Data from third party sources.
 │   ├── interim        <- Intermediate data that has been transformed.
-│   ├── processed      <- The final, canonical data sets for modeling.
+│   ├── processed      <- The final, canonical data sets for modeling (versioned with MLflow).
 │   └── raw            <- The original, immutable data dump.
 │
 ├── docs               <- A default mkdocs project; see www.mkdocs.org for details
@@ -56,6 +56,30 @@ A short description of the project.
     │
     └── plots.py                <- Code to create visualizations
 ```
+
+## Dataset tracking with MLflow
+
+This project does **not** use DVC. Dataset storage is the local folder `data/processed`
+(`DATASET_STORAGE_DIR` in `mlops/config.py`), and the datasets saved there are versioned with
+[MLflow dataset tracking](https://mlflow.org/docs/latest/ml/dataset/): each run records which
+dataset it used (name, source, digest, schema and profile), so every model can be traced back
+to the exact data it was trained on.
+
+```python
+import mlflow
+import pandas as pd
+
+from mlops.config import DATASET_STORAGE_DIR
+
+path = DATASET_STORAGE_DIR / "wine_quality_df.csv"
+df = pd.read_csv(path)
+dataset = mlflow.data.from_pandas(df, source=str(path), name="wine-quality", targets="quality")
+
+with mlflow.start_run():
+    mlflow.log_input(dataset, context="training")
+```
+
+The local MLflow tracking store (`mlflow.db`, `mlruns/`, `mlartifacts/`) is ignored by git.
 
 --------
 

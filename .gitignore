@@ -1,19 +1,19 @@
 # Data
 data/external/*
 !data/external/.gitkeep
-!data/external/*.dvc
 
 data/interim/*
 !data/interim/.gitkeep
-!data/interim/*.dvc
 
-data/processed/*
-!data/processed/.gitkeep
-!data/processed/*.dvc
+# data/processed is committed: its small datasets are versioned in git and tracked with MLflow
 
 data/raw/*
 !data/raw/.gitkeep
-!data/raw/*.dvc
+
+# MLflow local tracking store and artifacts
+mlruns/
+mlartifacts/
+mlflow.db
 
 # Mac OS-specific storage files
 .DS_Store

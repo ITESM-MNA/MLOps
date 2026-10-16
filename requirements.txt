@@ -6,6 +6,7 @@ jupyterlab
 loguru
 matplotlib
 mkdocs
+mlflow
 notebook
 numpy
 pandas
