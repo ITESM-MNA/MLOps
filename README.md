@@ -57,6 +57,27 @@ A short description of the project.
     └── plots.py                <- Code to create visualizations
 ```
 
+## Course notebooks
+
+The notebooks follow the cookiecutter naming convention `<number>-<initials>-<description>.ipynb`
+and read/write data only through the paths in `mlops/config.py`. Run them in order:
+
+| Notebook | Reads | Writes |
+|---|---|---|
+| `1.0-grh-get-wine-data` | UCI `wine+quality.zip` | `data/raw/wine_quality_original.csv` (white wine) |
+| `1.1-grh-intro-numpy-pandas` | `data/raw/wine_quality_original.csv` | – |
+| `1.2-grh-descriptive-statistics` | `data/raw/wine_quality_original.csv` | – |
+| `1.3-grh-wine-eda` | `data/raw/wine_quality_original.csv` | `data/interim/wine_quality_original_no_duplicates.csv` |
+| `1.4-grh-wine-data-cleaning` | `data/raw/wine_quality_modified.csv` (+ the files above) | `data/processed/wine_quality_cleaned_dropna.csv`, `data/processed/wine_quality_cleaned_imputed.csv`, MLflow run |
+
+Setup (plain Python virtual environment):
+
+```bash
+make create_environment          # python -m venv .venv
+# activate it: source .venv/bin/activate (Linux/macOS) or .venv\Scripts\activate (Windows)
+pip install -r requirements.txt  # also installs the `mlops` package in editable mode
+```
+
 ## Dataset tracking with MLflow
 
 This project does **not** use DVC. Dataset storage is the local folder `data/processed`
@@ -71,9 +92,11 @@ import pandas as pd
 
 from mlops.config import DATASET_STORAGE_DIR
 
-path = DATASET_STORAGE_DIR / "wine_quality_df.csv"
+path = DATASET_STORAGE_DIR / "wine_quality_cleaned_dropna.csv"
 df = pd.read_csv(path)
-dataset = mlflow.data.from_pandas(df, source=str(path), name="wine-quality", targets="quality")
+dataset = mlflow.data.from_pandas(
+    df, source=str(path), name="wine_quality_cleaned_dropna", targets="quality"
+)
 
 with mlflow.start_run():
     mlflow.log_input(dataset, context="training")

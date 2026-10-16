@@ -13,6 +13,8 @@ pandas
 pip
 python-dotenv
 scikit-learn
+scipy
+seaborn
 tqdm
 typer
 -e .

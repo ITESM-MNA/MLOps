@@ -1,0 +1,29 @@
+{
+  "name": "Wine Quality",
+  "slug": "wine-quality",
+  "page": "https://archive.ics.uci.edu/dataset/186/wine+quality",
+  "downloaded": [
+    "data/wine-quality/original/wine+quality.zip"
+  ],
+  "original_csv": "data/wine-quality/original.csv",
+  "modified_csv": "data/wine-quality/modified.csv",
+  "shape_original": [
+    4898,
+    12
+  ],
+  "shape_modified": [
+    4995,
+    13
+  ],
+  "hash_original_csv": "91e7afe85ee4f6ffb59934a0db693dd5590243b7a4bea3b2b25ad0e760103caa",
+  "hash_modified_csv": "c844a47efa3303fe0bbd049001e34eb57f269a0abd06d6bc790e9325799ff682",
+  "seed": 42,
+  "rates": {
+    "dup_rate": 0.02,
+    "nan_rate": 0.01,
+    "outlier_rate": 0.01,
+    "bad_token_rate": 0.005,
+    "obj_noise_rate": 0.05,
+    "add_mixed_type": true
+  }
+}

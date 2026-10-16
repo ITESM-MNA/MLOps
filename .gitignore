@@ -2,13 +2,8 @@
 data/external/*
 !data/external/.gitkeep
 
-data/interim/*
-!data/interim/.gitkeep
-
-# data/processed is committed: its small datasets are versioned in git and tracked with MLflow
-
-data/raw/*
-!data/raw/.gitkeep
+# data/raw, data/interim and data/processed are committed: the course datasets are very small.
+# Their versions are also tracked with MLflow (see data/README.md).
 
 # MLflow local tracking store and artifacts
 mlruns/

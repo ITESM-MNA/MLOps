@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -19,6 +20,12 @@ EXTERNAL_DATA_DIR = DATA_DIR / "external"
 # Dataset storage: datasets in data/processed are versioned with MLflow dataset tracking
 # (https://mlflow.org/docs/latest/ml/dataset/). No DVC and no cloud bucket are used.
 DATASET_STORAGE_DIR = PROCESSED_DATA_DIR
+
+# MLflow tracking store: a SQLite file in the project root (ignored by git).
+# Override it by setting MLFLOW_TRACKING_URI in the .env file (e.g. to point to an MLflow server).
+MLFLOW_TRACKING_URI = os.getenv(
+    "MLFLOW_TRACKING_URI", f"sqlite:///{(PROJ_ROOT / 'mlflow.db').as_posix()}"
+)
 
 MODELS_DIR = PROJ_ROOT / "models"
 
