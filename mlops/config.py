@@ -21,11 +21,12 @@ EXTERNAL_DATA_DIR = DATA_DIR / "external"
 # (https://mlflow.org/docs/latest/ml/dataset/). No DVC and no cloud bucket are used.
 DATASET_STORAGE_DIR = PROCESSED_DATA_DIR
 
-# MLflow tracking store: a SQLite file in the project root (ignored by git).
-# Override it by setting MLFLOW_TRACKING_URI in the .env file (e.g. to point to an MLflow server).
-MLFLOW_TRACKING_URI = os.getenv(
-    "MLFLOW_TRACKING_URI", f"sqlite:///{(PROJ_ROOT / 'mlflow.db').as_posix()}"
-)
+# MLflow tracking server: the locally running instance started from the project root with
+#   mlflow server --host 127.0.0.1 --port 5000
+# Override it by setting MLFLOW_TRACKING_URI in the .env file (e.g. to use a remote server).
+MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://127.0.0.1:5000")
+# Export it so every MLflow call in this process and its subprocesses (mlflow.run) uses the server
+os.environ.setdefault("MLFLOW_TRACKING_URI", MLFLOW_TRACKING_URI)
 
 MODELS_DIR = PROJ_ROOT / "models"
 

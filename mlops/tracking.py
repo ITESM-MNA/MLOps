@@ -10,8 +10,22 @@ from pathlib import Path
 import mlflow
 from mlflow.exceptions import MlflowException
 import pandas as pd
+import requests
 
-from mlops.config import MLFLOW_EXPERIMENT_NAME, PROJ_ROOT, TARGET
+from mlops.config import MLFLOW_EXPERIMENT_NAME, MLFLOW_TRACKING_URI, PROJ_ROOT, TARGET
+
+
+def check_tracking_server(uri: str = MLFLOW_TRACKING_URI) -> None:
+    """Fail fast with a clear message if the MLflow tracking server is not running."""
+    if not uri.startswith("http"):
+        return  # a local file/database store needs no server
+    try:
+        requests.get(f"{uri.rstrip('/')}/health", timeout=3).raise_for_status()
+    except requests.RequestException as exc:
+        raise RuntimeError(
+            f"MLflow tracking server not reachable at {uri}. Start it from the project root with:\n"
+            "    mlflow server --host 127.0.0.1 --port 5000"
+        ) from exc
 
 
 def start_run():
@@ -20,6 +34,14 @@ def start_run():
     Under `mlflow run` the run already exists (MLFLOW_RUN_ID is set) and is reused. When a step is
     executed directly with `python -m`, its run goes to the project's experiment.
     """
+    if "MLFLOW_RUN_ID" in os.environ and not mlflow.get_tracking_uri().startswith("http"):
+        raise RuntimeError(
+            "`mlflow run` is not using the MLflow server. Set the tracking URI in this terminal "
+            "and run it again:\n"
+            '    PowerShell:   $env:MLFLOW_TRACKING_URI = "http://127.0.0.1:5000"\n'
+            "    macOS/Linux:  export MLFLOW_TRACKING_URI=http://127.0.0.1:5000"
+        )
+    check_tracking_server()
     if "MLFLOW_RUN_ID" not in os.environ:
         mlflow.set_experiment(MLFLOW_EXPERIMENT_NAME)
     return mlflow.start_run()

@@ -6,6 +6,8 @@ PROJECT_NAME = mlops
 PYTHON_VERSION = 3.13
 PYTHON_INTERPRETER = python
 EXPERIMENT ?= wine-quality
+# Local MLflow tracking server (start it with `make mlflow-server`)
+export MLFLOW_TRACKING_URI ?= http://127.0.0.1:5000
 ALPHA ?= 0.5
 
 #################################################################################
@@ -66,7 +68,12 @@ create_environment:
 data:
 	$(PYTHON_INTERPRETER) scripts/prepare_data.py
 
-## Train the model without MLflow Projects (logs a run to mlflow.db)
+## Start the local MLflow tracking server (keep it running in its own terminal)
+.PHONY: mlflow-server
+mlflow-server:
+	mlflow server --host 127.0.0.1 --port 5000
+
+## Train the model without MLflow Projects (logs a run to the MLflow server)
 .PHONY: train
 train:
 	$(PYTHON_INTERPRETER) -m mlops.modeling.train

@@ -53,7 +53,26 @@ This also installs the `mlops` package in editable mode, so code changes apply i
 python -m pytest -q        # expected: 3 passed
 ```
 
-### 6. Run the notebooks (1.0 → 2.1)
+### 6. Start the local MLflow tracking server
+
+All experiments are tracked on a local MLflow server. Open a **second terminal**, go to the repo
+folder, activate `.venv` and leave this running while you work:
+
+```powershell
+mlflow server --host 127.0.0.1 --port 5000
+```
+
+The server stores runs in `mlflow.db` and files in `mlartifacts/` (both ignored by git). Open
+http://127.0.0.1:5000 to see the experiments.
+
+Back in the **first terminal**, point MLflow to the server (needed by `mlflow run`, once per
+terminal session):
+
+```powershell
+$env:MLFLOW_TRACKING_URI = "http://127.0.0.1:5000"     # macOS/Linux: export MLFLOW_TRACKING_URI=http://127.0.0.1:5000
+```
+
+### 7. Run the notebooks (1.0 → 2.1)
 
 ```powershell
 jupyter lab
@@ -62,7 +81,7 @@ jupyter lab
 Open `notebooks/` and run them in order (see *Course notebooks* below). In VS Code, select the
 `.venv` interpreter as the notebook kernel instead.
 
-### 7. Run the MLflow project (from the repo root, with `.venv` active)
+### 8. Run the MLflow project (from the repo root, with `.venv` active)
 
 ```powershell
 python scripts/prepare_data.py
@@ -71,13 +90,10 @@ mlflow run . -P alpha=0.01 --env-manager local --experiment-name wine-quality
 mlflow run . -e workflow --env-manager local --experiment-name wine-quality
 ```
 
-### 8. See the results
+### 9. See the results
 
-```powershell
-mlflow ui --backend-store-uri sqlite:///mlflow.db
-```
-
-Open http://127.0.0.1:5000, select runs in the `wine-quality` experiment and click **Compare**.
+Open http://127.0.0.1:5000 (the server from step 6), select runs in the `wine-quality` experiment
+and click **Compare**.
 The cleaning run from notebook 1.4 is in the `wine-quality-data-cleaning` experiment.
 
 ### Every new session
@@ -86,15 +102,19 @@ The cleaning run from notebook 1.4 is in the `wine-quality-data-cleaning` experi
 cd C:\Users\<you>\Documents\MLOps-2021
 .venv\Scripts\Activate.ps1          # macOS/Linux: source .venv/bin/activate
 git pull                             # get the latest course material
+$env:MLFLOW_TRACKING_URI = "http://127.0.0.1:5000"     # macOS/Linux: export MLFLOW_TRACKING_URI=...
 ```
 
-If `git pull` changes `requirements.txt`, run `pip install -r requirements.txt` again.
+Start the MLflow server again in its own terminal (step 6). If `git pull` changes
+`requirements.txt`, run `pip install -r requirements.txt` again.
 
 **Tips**
 
 - The `make ...` shortcuts in this README need `make`, which Windows does not include by
   default; the commands above do the same without it.
-- Always run MLflow commands from the repo root, so every run is stored in the same `mlflow.db`.
+- Start the MLflow server from the repo root, so it always uses the same `mlflow.db`.
+- If a script says *MLflow tracking server not reachable*, the server from step 6 is not running.
+  If `mlflow run` says it *is not using the MLflow server*, set `MLFLOW_TRACKING_URI` (step 6).
 
 ## Project Organization
 
@@ -185,8 +205,18 @@ measurements, starting from the cleaned dataset produced by notebook 1.4
 `OutlierClipper` → `StandardScaler` → `ElasticNet(alpha)`: the larger `alpha`, the stronger the
 regularization and the simpler the model.
 
-Run every command **from the project root** with the virtual environment active, so that all runs
-are stored in the same `mlflow.db` (also used by notebook 1.4).
+All runs are tracked on the **local MLflow tracking server** (`MLFLOW_TRACKING_URI` in
+`mlops/config.py`, default `http://127.0.0.1:5000`; notebook 1.4 logs there too). Start it first,
+from the project root and in its own terminal, and point the terminal you run from to it:
+
+```powershell
+mlflow server --host 127.0.0.1 --port 5000             # terminal 1 (or: make mlflow-server)
+$env:MLFLOW_TRACKING_URI = "http://127.0.0.1:5000"     # terminal 2; macOS/Linux: export MLFLOW_TRACKING_URI=...
+```
+
+`mlflow run` needs the environment variable because it creates the run before any project code
+runs. Python code (`python -m mlops...`, `scripts/run_project.py`, the notebooks) reads the URI
+from `mlops/config.py`. To use another server, set `MLFLOW_TRACKING_URI` in the `.env` file.
 
 ### 1. Prepare the data
 
@@ -215,14 +245,10 @@ mlflow run . -P alpha=0.01 --env-manager local --experiment-name wine-quality
 
 ### 3. See the results
 
-```bash
-mlflow ui --backend-store-uri sqlite:///mlflow.db
-```
-
 Open http://127.0.0.1:5000, select several runs of the `wine-quality` experiment and click
 **Compare** to see how `rmse`, `mae` and `r2` change with `alpha`. Each run also lists the datasets
-it used (see *Dataset tracking with MLflow* below). The UI does not need to be open while the runs
-execute.
+it used (see *Dataset tracking with MLflow* below). The browser does not need to be open while the
+runs execute, but the server must be running.
 
 ### 4. Other entry points
 
@@ -236,7 +262,7 @@ execute.
 
 The `<run_id>` is printed at the end of training (`Model URI: runs:/.../model`).
 
-`mlflow.db`, `mlruns/`, `data/interim/wine_quality_interim.csv`,
+The server's `mlflow.db` and `mlartifacts/`, `data/interim/wine_quality_interim.csv`,
 `data/processed/wine_quality_features.parquet` and `reports/predictions.csv` are regenerated by
 the runs and are ignored by git.
 
@@ -264,7 +290,7 @@ with mlflow.start_run():
     mlflow.log_input(dataset, context="training")
 ```
 
-The local MLflow tracking store (`mlflow.db`, `mlruns/`, `mlartifacts/`) is ignored by git.
+The MLflow server's local store (`mlflow.db`, `mlartifacts/`, and `mlruns/` if used) is ignored by git.
 
 --------
 
